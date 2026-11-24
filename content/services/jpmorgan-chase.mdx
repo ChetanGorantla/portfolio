@@ -27,7 +27,7 @@ Two jobs on the same data. I doubled Cassandra read throughput on a 10M-record d
 
 ## Context
 
-> TODO (Chetan): What was this data used for, and what did slow reads look like from the user's side? What was your first week like?
+> Customer trade data was queried slowly in a dashboard, not making use of Cassandra's tradeoffs. The company also wanted to perform an internal service migration to AWS to invest in cloud infra.
 
 ## Approach
 
@@ -55,8 +55,8 @@ Making the migration safe to fail. At 100+ GB, something will break partway thro
 
 ## Lessons learned
 
-> TODO (Chetan): What did this teach you about data modeling, or about moving data you can't afford to lose?
+> Read-side optimization is the key differentiator between using Cassandra vs other NoSQL databases. It's important to configure the database as optimally as possible to support fast reads, since that's one of the core motivations behind Cassandra. Also, batching needs precise failure handling and rollbacks to ensure data recovery.
 
 ## If I did it again
 
-> TODO (Chetan): Knowing what you know now, what would you change?
+> I would maintain a watchdog that can observe the status of a batch job rather than waiting for status reports. This would introduce more overhead of a persistent connection, but would allow engineers the organization of tracking currently-running processes.

@@ -3,20 +3,26 @@
 import Image from "next/image";
 import { useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
 import type { MediaItem } from "@/lib/content";
+import { videoType } from "@/lib/media";
+import { LazyVideo } from "./lazy-video";
 
-/** Screenshot grid with a lightbox (native modal dialog: Esc closes, arrows step). */
+/** Screenshot (and video) grid with a lightbox (native modal dialog: Esc closes, arrows step). */
 export function Gallery({ images }: { images: MediaItem[] }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [index, setIndex] = useState(0);
+  // The viewer's media only mounts while open, so a playing video stops on close.
+  const [isOpen, setIsOpen] = useState(false);
   const count = images.length;
   const step = (delta: number) => setIndex((i) => (i + delta + count) % count);
 
   const open = (i: number) => {
     setIndex(i);
+    setIsOpen(true);
     dialog.current?.showModal();
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
+    if (e.target instanceof HTMLVideoElement) return; // arrows seek the focused video
     if (e.key === "ArrowRight") step(1);
     if (e.key === "ArrowLeft") step(-1);
   };
@@ -39,25 +45,59 @@ export function Gallery({ images }: { images: MediaItem[] }) {
               onClick={() => open(i)}
               className="relative block aspect-[16/10] w-full overflow-hidden rounded-lg border border-border bg-surface-sunken"
             >
-              <Image
-                src={img.src}
-                alt={img.alt}
-                fill
-                sizes="(min-width: 768px) 340px, 100vw"
-                className="object-cover transition-transform duration-300 motion-safe:hover:scale-[1.02]"
-              />
-              <span className="sr-only">
-                (open image {i + 1} of {count})
-              </span>
+              {videoType(img.src) ? (
+                <>
+                  {/* Plays like a GIF: muted and looping, only while on screen. */}
+                  <LazyVideo srcs={[img.src]} label={img.alt} />
+                  <span className="sr-only">
+                    (open video {i + 1} of {count})
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    fill
+                    sizes="(min-width: 768px) 340px, 100vw"
+                    className="object-cover transition-transform duration-300 motion-safe:hover:scale-[1.02]"
+                  />
+                  <span className="sr-only">
+                    (open image {i + 1} of {count})
+                  </span>
+                </>
+              )}
             </button>
           </li>
         ))}
       </ul>
 
-      <dialog ref={dialog} aria-label="Screenshot viewer" className="lightbox" onKeyDown={onKeyDown} onClick={onClick}>
+      <dialog
+        ref={dialog}
+        aria-label="Media viewer"
+        className="lightbox"
+        onKeyDown={onKeyDown}
+        onClick={onClick}
+        onClose={() => setIsOpen(false)}
+      >
         <div className="flex size-full flex-col items-center justify-center gap-4 p-4 sm:p-10" onClick={onClick}>
           <div className="relative h-full max-h-[80vh] w-full max-w-5xl">
-            <Image src={current.src} alt={current.alt} fill sizes="100vw" className="object-contain" />
+            {isOpen &&
+              (videoType(current.src) ? (
+                <video
+                  key={current.src}
+                  src={current.src}
+                  controls
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  aria-label={current.alt}
+                  className="size-full object-contain"
+                />
+              ) : (
+                <Image src={current.src} alt={current.alt} fill sizes="100vw" className="object-contain" />
+              ))}
           </div>
           <div className="flex items-center gap-3">
             {count > 1 && (

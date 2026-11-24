@@ -3,7 +3,7 @@ slug: jimmysimulation
 title: JimmySimulation
 org: NVIDIA Hackathon
 role: null
-dates: null # TODO (Chetan): add the hackathon date if you want it on the card
+dates: May 2026
 group: project
 status: shipped
 featured: false
@@ -16,13 +16,12 @@ outcome: null
 summary: A LLaMA 3.1 evacuation simulator that makes 6 routing decisions per tick at 17K tokens per second.
 tags: [LLaMA 3.1, Kafka, Python, graph search]
 links:
-  demo: null # TODO (Chetan): demo link, if public
-  repo: null # TODO (Chetan): repo link, if public
+  demo: null # TODO (Chetan): there's no hosted deployment (it runs locally). Add a video link if you record one.
+  repo: https://github.com/ChetanGorantla/jimmysimulation
 media:
   type: images
-  # TODO (Chetan): Add the screenshots to public/media/ (add or remove entries to match).
-  src: [/media/jimmysim-1.png, /media/jimmysim-2.png]
-  alt: [JimmySimulation screenshot 1, JimmySimulation screenshot 2] # TODO (Chetan): describe each screenshot
+  src: [/media/jimmysim-1.png, /media/jimmysim-2.mp4]
+  alt: ["Dashboard view: a two-floor 3D building model with its exits highlighted, next to the scene controls", "Run-through of the agents: occupants move through the 3D building toward the exits, with the evacuation-rate chart below"]
 ---
 
 ## Summary
@@ -31,7 +30,11 @@ JimmySimulation is an evacuation simulator built at an NVIDIA hackathon. LLaMA 3
 
 ## Context
 
-> TODO (Chetan): Why evacuation? Where did the idea come from, and who was on the team?
+Most evacuation math treats people like fluid: so many bodies per meter of doorway per second. That gets the mechanics right and the people wrong. Real occupants only know some of the exits, follow the crowd, freeze, or turn back, and those small choices are what add up to a jammed stairwell next to an empty exit.
+
+So the question was whether a small, fast LLM could play the individual occupants while a deterministic engine kept the physics honest. The model only picks from options the engine offers. The engine owns movement, queueing, and timing. It's a research prototype for architects, not a life-safety tool.
+
+The first version came together at the hackathon, where a teammate built the visual building editor and result overlays. I kept going after it ended: Kafka-backed Monte Carlo runs, hazards, multi-floor buildings, and IFC import all landed that summer.
 
 ## Approach
 
@@ -53,8 +56,14 @@ JimmySimulation is an evacuation simulator built at an NVIDIA hackathon. LLaMA 3
 
 ## Lessons learned
 
-> TODO (Chetan): What did you learn about putting an LLM inside a real-time loop?
+**Plan for the model not showing up.** Calls time out, and a small model returns malformed JSON often enough that every decision needs a deterministic fallback. Adding traits like crowd-following taught me the sharper version: any behavior that lives only in the prompt silently disappears whenever the fallback runs. Now every trait has a mechanical mirror in the fallback, and the decision log records which one made each call.
+
+**Check every hop for the bottleneck.** The client allowed 6 model calls in flight, but the little proxy in front of the model was a single-threaded HTTP server, so it answered them one at a time. The fix was one line.
+
+**Randomness changes what a result means.** The same seed doesn't replay the same run, so one simulation can't tell you layout A beats layout B. Layout comparison runs paired multi-seed Monte Carlo sweeps and compares distributions instead.
 
 ## If I did it again
 
-> TODO (Chetan): What would you change about the architecture?
+- **Build the LLM-off baseline first.** The whole project asks whether LLM-driven occupants beat a formula, and the deterministic fallback already *is* a formula. There's no switch to run it alone, so the one comparison the project exists for can't be run directly.
+- **Get delivery semantics right before scaling out.** The first Kafka worker auto-committed offsets, so a trial whose result failed to publish could be marked done and quietly lost. Committing only after a confirmed publish fixed it. That's where it should have started.
+- **Own the inference.** Decisions go through a proxy to a free hosted Llama 3.1 8B. It's fast and costs nothing, but it comes with no SLA and no say over quantization.

@@ -27,7 +27,7 @@ Releasing a cardholder-intent change on the Card Tech Platform took about 3 hour
 
 ## Context
 
-> TODO (Chetan): What made a 3-hour release worth fixing? Who was waiting on it, and what did a release look like the first time you watched one?
+> When Capital One wants to authorize a new credit card benefit, my team would be tasked with creating the benefit item, testing it in QA, and releasing it to production. That process was slow and insecure. One engineer needed to step away from their tasks for a day or two to monitor the release, and on top of that, they needed direct production DB access. A mistyped SQL command was a nightmare to resolve.
 
 ## Approach
 
@@ -51,8 +51,8 @@ The other half was making failure loud. A promotion pipeline that fails quietly 
 
 ## Lessons learned
 
-> TODO (Chetan): What surprised you about working on a platform other teams depend on? What would you tell the next intern on day one?
+> The component I worked on serviced many downstream components. One of the biggest challenges of the summer was handling pushback from various teams. I met with lots of senior engineers and ICs across the org to understand their perspectives, and base my tradeoffs from there. After five architecture iterations, I landed on the one that lives in production today, servicing 15 engineers across my org.
 
 ## If I did it again
 
-> TODO (Chetan): Is there a design decision you'd revisit now that it has shipped?
+> I'd try to work closer with the QA testers to understand their perspectives, and if there was a direct form of communication I could establish between the maintainers and QA testers.

@@ -3,7 +3,7 @@ slug: detectfx
 title: DetectFX
 org: null
 role: ML guitar tone emulator
-dates: null # TODO (Chetan): add a date if you want it on the card
+dates: Jul 2025
 group: project
 status: shipped
 featured: false
@@ -13,8 +13,8 @@ outcome: Identifies 13 guitar effects from a recording and recreates the tone
 summary: Hears which effects are on a guitar recording and rebuilds the tone with DSP effects written in NumPy and SciPy.
 tags: [Python, NumPy/SciPy, ML, Supabase]
 links:
-  demo: null # TODO (Chetan): demo link, if public
-  repo: null # TODO (Chetan): repo link, if public
+  demo: null # TODO (Chetan): detectfx.vercel.app returns 404 right now. Add the link back if you redeploy.
+  repo: https://github.com/ChetanGorantla/DetectFX
 media: null
 ---
 
@@ -24,7 +24,9 @@ DetectFX listens to a guitar recording, identifies which of 13 effects are on it
 
 ## Context
 
-> TODO (Chetan): You're learning guitar. How did that lead to this project? Was there a specific tone you were chasing?
+I'm learning guitar, which mostly means hearing a tone on a recording and having no idea how to get it. Is that a Tube Screamer or a RAT? Spring reverb or plate? Answering by ear usually means buying pedals until something sounds right.
+
+DetectFX makes the computer do the guessing. Give it a recording and it ranks which of 13 effect classes are likely on it. Give it your clean DI track next to a reference and it tries to push your sound toward the reference. I built it solo and shipped it in July 2025: React on Vercel, FastAPI on Heroku, and Supabase for auth and storage.
 
 ## Approach
 
@@ -46,8 +48,12 @@ DetectFX listens to a guitar recording, identifies which of 13 effects are on it
 
 ## Lessons learned
 
-> TODO (Chetan): What did building this teach you about audio, ML, or your own playing?
+**Measure first, then fix.** My commit log from deploy day is mostly guessing: "testing if librosa is the problem," a detour through Render and Docker, then Heroku. Nothing moved until I logged memory after every stage. One of the first things that turned up was almost embarrassing: the 47 MB classifier was being loaded from disk inside the request handler, on every request.
+
+**A safety net isn't a fix.** I also added a watchdog that restarts the dyno through the Heroku API when memory passes 400 MB. It's useful, the way a smoke detector wired to the sprinklers is useful. It just shouldn't be plan A.
 
 ## If I did it again
 
-> TODO (Chetan): What would you do differently?
+- **Connect the two halves.** Detection and recreation are separate endpoints, and recreation never asks the classifier anything. It works from the feature delta alone and always starts with overdrive and fuzz, even when the classifier would have said "Clean."
+- **Index features by name.** The rules read the 18-number feature vector by position, and the label list drifted out of order from the vector. The rule labeled "rms" actually reads spectral rolloff. A named structure would have caught that.
+- **Keep time in the features.** The classifier sees each clip as 16 numbers averaged over the whole recording. That works for distortion, which reshapes the spectrum. Delay, flanger, and phaser live in how the sound changes over time, and averaging erases exactly that.

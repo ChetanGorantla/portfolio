@@ -8,10 +8,13 @@ group: experience
 status: in-progress
 featured: true
 order: 1
-metric: null # TODO (Chetan): add one once the projects have a number worth showing
+metric:
+  label: time to identify skimmers
+  before: days
+  after: hours
 outcome: Leading engineering for 2 company-wide projects, working directly with the CIO
 summary: Leading the engineering initiative for 2 projects in Texas Convergent's company-wide Forge partnership with Family Dollar.
-tags: [] # TODO (Chetan): the stack, up to 4 tags
+tags: [Python, YOLO, GCP]
 links:
   demo: null
   repo: null
@@ -22,26 +25,24 @@ media: null
 
 **Status: in progress.** This is a live incident update, not a postmortem. The work is still running.
 
-Texas Convergent's Forge program has a partnership with Family Dollar that spans the whole company. I'm the Tech Lead for it: I lead the engineering initiative for 2 projects under the partnership, and I work directly with the CIO.
-
-> TODO (Chetan): One sentence on what each of the 2 projects does, plus the team size.
+> Texas Convergent's Forge program has a partnership with Family Dollar that spans the whole company. I'm the Tech Lead for it: I lead the engineering initiative for 2 projects under the partnership, and I work directly with the CIO.
 
 ## Context
 
-> TODO (Chetan): How did you end up leading this? What was the first conversation with the CIO like?
+> Family Dollar faces an issue of out-of-stock shelves generating poor trends in store efficiency and sell rate. Also, pinpad skimmers maliciously target EBT cardholders since their services offer less customer protection than credit card companies do.
 
 ## Approach
 
-> TODO (Chetan): What are you building, and on what stack? Which metrics are you deriving to tell whether it's working?
+> For out-of-stock shelves, we identify high-risk shelves and derive fullness scores, and observe trends over time. For pinpad skimmers, we use two-pass object detection to first locate a pinpad and then identify certain characteristics. We compare computer-generated results with hand-labeled data for accuracy purposes.
 
 ## The hard part
 
-> TODO (Chetan): What are you still figuring out? What is it like working directly with an executive stakeholder, and how do you turn company-wide goals into engineering work for the team?
+> Working in a real-world environment brings tighter constraints than working on a personal project. Navigating cost, security, and feasibility is the most difficult aspect of the project - not the code. Finding a balance between the three requires communication across company stakeholders and teams to find an aligned perspective and acknowledge certain tradeoffs.
 
 ## Resolution
 
-Not resolved yet, and that's expected. This report will be updated as the projects ship.
+Not resolved yet, and that's expected. This report will be updated as the projects ship into production at Family Dollar.
 
 ## Lessons learned (so far)
 
-> TODO (Chetan): What has surprised you so far about leading engineering on a project this size?
+> Leading a team is harder than it sounds. I've had to defend my teams' decisions, weigh outcomes on the fly, and maintain a great personal understanding of what's going on at every step of development. On top of that, keeping morale high when we face challenges is difficult, but necessary. As a leader, I'm prepared for any challenges we may face.

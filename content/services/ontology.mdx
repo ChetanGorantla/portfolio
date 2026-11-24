@@ -3,7 +3,7 @@ slug: ontology
 title: Ontology
 org: Google Hackathon
 role: null
-dates: null # TODO (Chetan): add the hackathon date if you want it on the card
+dates: Apr 2026
 group: project
 status: winner
 statusLabel: "winner · Best Use of Gemini, 200+ teams"
@@ -14,13 +14,9 @@ outcome: null
 summary: A platform that ingests PDFs, GitHub, and Slack into a typed knowledge graph and answers questions over it with validated citations.
 tags: [Next.js, TypeScript, pgvector, Gemini]
 links:
-  demo: null # TODO (Chetan): demo link, if public
-  repo: null # TODO (Chetan): repo link, if public
-media:
-  type: video
-  # TODO (Chetan): Add public/media/ontology-demo.mp4, or replace with a YouTube/Loom embed URL.
-  src: [/media/ontology-demo.mp4]
-  alt: [Ontology demo video] # TODO (Chetan): describe what the demo shows
+  demo: https://devpost.com/software/stealth-3jx6wi
+  repo: https://github.com/ChetanGorantla/Ontology
+media: null
 ---
 
 ## Summary
@@ -29,7 +25,9 @@ Ontology won **Best Use of Gemini** at a Google hackathon, out of 200+ teams. It
 
 ## Context
 
-> TODO (Chetan): What problem were you trying to solve? Who was on the team, and how did the hackathon go?
+What a team knows ends up split across PDFs, a GitHub repo, and a Slack workspace. The usual fix is a chat box on top that answers confidently and shows none of its work. We wanted the opposite: drop in your sources, watch them become a map of concepts, questions, and tasks, and get answers that show exactly which sources and which part of the graph they came from.
+
+There were four of us, and we built it over a weekend in April 2026 with NotebookLM as the reference point. Every feature had to serve one of two rules. **Validation:** every claim traces back to a source. **Centralization:** good graphs can be published, browsed, and forked.
 
 ## Approach
 
@@ -51,8 +49,14 @@ Ontology won **Best Use of Gemini** at a Google hackathon, out of 200+ teams. It
 
 ## Lessons learned
 
-> TODO (Chetan): What did you learn about building under hackathon time pressure, or about making an LLM's answers trustworthy?
+**Agree on the seams before anyone writes code.** Four people building one app in a weekend only works if they don't block each other. We wrote specs and a schema doc first, marking each contract as locked, stable, or flexible. The AI functions started as stubs with fixed signatures, so frontend, backend, and AI work could all happen at once.
+
+**Trust is mostly plumbing.** The prompt matters less than the code around it. Answers come back with chunk IDs, citations to chunks that aren't in the workspace get dropped, and when there's nothing to stand on, the answer says "insufficient evidence" instead of improvising.
+
+**Insure the demo.** The seeded demo workspace answers its showcase questions from precomputed responses, with zero model calls. A live demo is the worst possible time to discover a rate limit.
 
 ## If I did it again
 
-> TODO (Chetan): What would you build differently with more than a weekend?
+- **Check the quote, not just the chunk.** Validation confirms a cited chunk exists, but not that the quoted text actually appears in it. A model can cite a real source with a made-up quote. A fuzzy match against the chunk text would close that gap.
+- **Let RLS cover the AI path.** The ask route checks access with the user's token, but the pipeline behind it runs on the service-role key and relies on every query adding its own workspace filter. One forgotten filter is a cross-tenant leak. Running retrieval as the user would make Postgres enforce isolation.
+- **Persist the cache registry.** The map from workspace to Gemini context cache lives in process memory. On serverless, every new instance forgets the cache exists and resends the full context, while the old cache sits unused until its 1-hour TTL runs out.
