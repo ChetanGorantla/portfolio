@@ -1,0 +1,62 @@
+---
+slug: jpmorgan-chase
+title: JPMorgan Chase
+org: JPMorgan Chase
+role: Software Engineering Intern, Full-Stack Platform
+dates: Jun – Aug 2023
+group: experience
+status: resolved
+featured: false
+order: 4
+metric:
+  label: Cassandra read throughput, 10M records
+  before: 1×
+  after: 2×
+outcome: null
+summary: Doubled Cassandra read throughput on 10M records and migrated 100+ GB of legacy data to S3 as Parquet.
+tags: [Java, Cassandra, S3, Parquet]
+links:
+  demo: null
+  repo: null
+media: null
+---
+
+## Summary
+
+Two jobs on the same data. I doubled Cassandra read throughput on a 10M-record dataset by reshaping the data model around its query patterns. I also migrated 100+ GB of legacy Cassandra data to S3 as Parquet, with a concurrent Java pipeline that can fail partway and pick up where it left off.
+
+## Context
+
+> TODO (Chetan): What was this data used for, and what did slow reads look like from the user's side? What was your first week like?
+
+## Approach
+
+**Reads.** Cassandra rewards tables designed around the queries you actually run. I:
+
+- redesigned row width to match the query patterns,
+- built denormalized query tables, so each common query reads from a table shaped for it,
+- cut network hops with prepared statements and token-aware routing, so requests go straight to a node that owns the data.
+
+**Migration.** The 100+ GB move to S3 as Parquet ran through a Java thread-pool pipeline of concurrent multipart uploads.
+
+## The hard part
+
+Making the migration safe to fail. At 100+ GB, something will break partway through, and starting over from zero isn't a plan. I hardened the pipeline with:
+
+- **checkpointed retries**, so a failure resumes from the last good checkpoint,
+- **idempotent writes**, so retrying a chunk is safe to repeat,
+- **backpressure tuning**, so the thread pool doesn't read faster than it can upload.
+
+## Resolution
+
+- Cassandra read throughput on 10M records went from **1× to 2×**.
+- 100+ GB of legacy Cassandra data migrated to S3 as Parquet.
+- The migration pipeline retries idempotently from checkpoints, with tuned backpressure.
+
+## Lessons learned
+
+> TODO (Chetan): What did this teach you about data modeling, or about moving data you can't afford to lose?
+
+## If I did it again
+
+> TODO (Chetan): Knowing what you know now, what would you change?

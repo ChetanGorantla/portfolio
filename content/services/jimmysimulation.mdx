@@ -1,0 +1,60 @@
+---
+slug: jimmysimulation
+title: JimmySimulation
+org: NVIDIA Hackathon
+role: null
+dates: null # TODO (Chetan): add the hackathon date if you want it on the card
+group: project
+status: shipped
+featured: false
+order: 2
+metric:
+  label: GPU throughput, 17K tok/sec
+  before: 1×
+  after: 100×
+outcome: null
+summary: A LLaMA 3.1 evacuation simulator that makes 6 routing decisions per tick at 17K tokens per second.
+tags: [LLaMA 3.1, Kafka, Python, graph search]
+links:
+  demo: null # TODO (Chetan): demo link, if public
+  repo: null # TODO (Chetan): repo link, if public
+media:
+  type: images
+  # TODO (Chetan): Add the screenshots to public/media/ (add or remove entries to match).
+  src: [/media/jimmysim-1.png, /media/jimmysim-2.png]
+  alt: [JimmySimulation screenshot 1, JimmySimulation screenshot 2] # TODO (Chetan): describe each screenshot
+---
+
+## Summary
+
+JimmySimulation is an evacuation simulator built at an NVIDIA hackathon. LLaMA 3.1 makes 6 routing decisions per tick at 17K tokens per second, after GPU throughput went from 1× to 100×. Monte Carlo trials run in parallel across Kafka workers to find bottlenecks and exit imbalances.
+
+## Context
+
+> TODO (Chetan): Why evacuation? Where did the idea come from, and who was on the team?
+
+## Approach
+
+- **Decisions.** LLaMA 3.1 proposes routes, making 6 routing decisions per tick.
+- **Scale.** Monte Carlo evacuation trials are parallelized across Kafka consumer-group workers to surface bottlenecks and exit imbalances.
+- **Routing.** For each exit, a weighted graph search ranks the k shortest evacuation routes by hazard risk, congestion, and crowd popularity.
+
+## The hard part
+
+**LLMs will happily route people through walls.** An LLM-proposed route can be hallucinated or discontinuous. Graph-grounded guardrails check every proposal against the graph and reject routes that don't hold up.
+
+**Keeping up with the simulation.** 6 decisions per tick only works if inference keeps pace, so GPU throughput had to go from 1× to 100×, reaching 17K tokens per second.
+
+## Resolution
+
+- 6 routing decisions per tick at 17K tok/sec, with GPU throughput at 100× where it started.
+- k-shortest routes per exit, ranked by hazard risk, congestion, and crowd popularity.
+- Hallucinated and discontinuous routes rejected by graph-grounded guardrails.
+
+## Lessons learned
+
+> TODO (Chetan): What did you learn about putting an LLM inside a real-time loop?
+
+## If I did it again
+
+> TODO (Chetan): What would you change about the architecture?

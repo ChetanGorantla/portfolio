@@ -1,0 +1,58 @@
+---
+slug: capital-one
+title: Capital One
+org: Capital One
+role: Software Engineering Intern, Card Tech Platform
+dates: Jun – Aug 2026
+group: experience
+status: resolved
+featured: false
+order: 2
+metric:
+  label: Release time
+  before: 3 hours
+  after: 6 minutes
+outcome: null
+summary: Built a self-service workflow that cut release time from 3 hours to 6 minutes.
+tags: [Go, Node.js, AWS Lambda, DynamoDB]
+links:
+  demo: null
+  repo: null
+media: null
+---
+
+## Summary
+
+Releasing a cardholder-intent change on the Card Tech Platform took about 3 hours. I built a Node.js self-service workflow that promotes changes from staging to production, and release time dropped to 6 minutes. To make that safe, I also built Go/DynamoDB CRUD APIs and a cross-account promotion pipeline that pages the team when a write fails.
+
+## Context
+
+> TODO (Chetan): What made a 3-hour release worth fixing? Who was waiting on it, and what did a release look like the first time you watched one?
+
+## Approach
+
+Three pieces, each one making the next possible:
+
+1. **A real API in front of the data.** The system-of-record tables were served by a read-only service, so anything that needed a write went straight to the database. I built Go CRUD APIs on DynamoDB against those tables. They replaced the read-only service and removed direct database access.
+2. **A self-service workflow.** With writes behind an API, I built a Node.js workflow that moves cardholder-intent changes from staging to production as a self-service step.
+3. **A cross-account promotion pipeline.** A QA manifest triggers a Lambda, which calls a production Go API to write the promoted entries.
+
+## The hard part
+
+The entries depend on each other. Promote one without the records it links to, and production ends up technically written and practically wrong. So the production API upserts dependency-linked system-of-record entries **atomically**: the whole set lands, or none of it does.
+
+The other half was making failure loud. A promotion pipeline that fails quietly is worse than a slow manual release, because the manual release at least has a person watching it. Write failures go through CloudWatch to Splunk and page the team.
+
+## Resolution
+
+- Cardholder-intent release time went from **3 hours to 6 minutes**, via self-service staging-to-production promotion.
+- System-of-record tables now sit behind Go/DynamoDB CRUD APIs. The read-only service and direct database access are gone.
+- Cross-account promotions upsert atomically, and failed writes page the team through CloudWatch → Splunk.
+
+## Lessons learned
+
+> TODO (Chetan): What surprised you about working on a platform other teams depend on? What would you tell the next intern on day one?
+
+## If I did it again
+
+> TODO (Chetan): Is there a design decision you'd revisit now that it has shipped?

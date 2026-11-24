@@ -1,0 +1,58 @@
+---
+slug: ontology
+title: Ontology
+org: Google Hackathon
+role: null
+dates: null # TODO (Chetan): add the hackathon date if you want it on the card
+group: project
+status: winner
+statusLabel: "winner · Best Use of Gemini, 200+ teams"
+featured: false
+order: 1
+metric: null
+outcome: null
+summary: A platform that ingests PDFs, GitHub, and Slack into a typed knowledge graph and answers questions over it with validated citations.
+tags: [Next.js, TypeScript, pgvector, Gemini]
+links:
+  demo: null # TODO (Chetan): demo link, if public
+  repo: null # TODO (Chetan): repo link, if public
+media:
+  type: video
+  # TODO (Chetan): Add public/media/ontology-demo.mp4, or replace with a YouTube/Loom embed URL.
+  src: [/media/ontology-demo.mp4]
+  alt: [Ontology demo video] # TODO (Chetan): describe what the demo shows
+---
+
+## Summary
+
+Ontology won **Best Use of Gemini** at a Google hackathon, out of 200+ teams. It's a Next.js/TypeScript platform that ingests PDFs, GitHub, and Slack into a typed knowledge graph, then answers questions over it with a Gemini 2.5 tool-calling RAG loop that validates its citations.
+
+## Context
+
+> TODO (Chetan): What problem were you trying to solve? Who was on the team, and how did the hackathon go?
+
+## Approach
+
+- **Ingestion.** PDFs, GitHub, and Slack go in through an async job queue and come out as a typed, 250-node knowledge graph.
+- **Retrieval.** A Gemini 2.5 tool-calling RAG loop pulls the top 7 matches from pgvector, with context caching so the same context isn't sent twice.
+- **Isolation.** Tenants are kept apart with Postgres row-level security.
+
+## The hard part
+
+**The same thing, named three ways.** A person or project shows up in a PDF, a repo, and a Slack thread, written slightly differently each time. I deduplicated entities with cosine-similarity embeddings, then used Union-Find to merge matches. That way, near-duplicates connected only through a chain of matches still end up as one node.
+
+**Answers you can check.** Every answer goes through citation validation, so its claims point back to real sources instead of plausible-sounding ones.
+
+## Resolution
+
+- Won Best Use of Gemini, out of 200+ teams.
+- A typed 250-node knowledge graph built from PDFs, GitHub, and Slack.
+- Top-7 pgvector retrieval with context caching and citation validation. Tenants isolated by row-level security.
+
+## Lessons learned
+
+> TODO (Chetan): What did you learn about building under hackathon time pressure, or about making an LLM's answers trustworthy?
+
+## If I did it again
+
+> TODO (Chetan): What would you build differently with more than a weekend?

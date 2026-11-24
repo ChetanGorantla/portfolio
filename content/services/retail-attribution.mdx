@@ -1,0 +1,59 @@
+---
+slug: retail-attribution
+title: Retail attribution
+org: Texas Convergent
+role: Software Engineer
+dates: Sept – Dec 2025
+group: experience
+status: shipped
+featured: false
+order: 3
+metric: null
+outcome: Matched point-of-sale transactions to ad impressions within a 2-minute window
+summary: Built a real-time Python and Cloud Run backend that automates ad-to-purchase attribution from speech, POS, and video data.
+tags: [Python, Cloud Run, OpenAI, YOLOv8]
+links:
+  demo: null
+  repo: null
+media: null
+---
+
+## Summary
+
+I built a retail attribution backend on Python and Cloud Run. It ingests real-time speech, POS, and video data through 3 REST APIs and matches POS transactions to ad impressions within a 2-minute window, which automates ad-to-purchase attribution.
+
+## Context
+
+> TODO (Chetan): Who was this for, and how was attribution done before? How did the team come together?
+
+## Approach
+
+Three input streams, each with its own job:
+
+- **Ingestion.** 3 REST APIs on Cloud Run take in real-time speech, POS, and video data.
+- **Speech.** An OpenAI NLP classifier extracts upsell intent and product mentions from the conversation.
+- **Video.** A real-time YOLOv8/OpenCV pipeline uses calibrated proximity scoring to verify cashier-customer interactions.
+
+With those signals in place, the backend matches POS transactions to ad impressions within a 2-minute window.
+
+## The hard part
+
+Two inputs I couldn't take at face value.
+
+**Speech is untrusted input.** Whatever someone says ends up inside a prompt, so the extraction had to be prompt-injection resistant. The transcript is data to classify, not instructions to follow.
+
+**Being close isn't the same as interacting.** Two people standing near each other on camera aren't necessarily talking. The proximity scoring had to be calibrated before it could be trusted to verify a cashier-customer interaction.
+
+## Resolution
+
+- POS transactions matched to ad impressions within a 2-minute window.
+- Ad-to-purchase attribution automated end to end.
+- Speech classified for upsell intent and product mentions with prompt-injection-resistant extraction. Cashier-customer interactions verified from video.
+
+## Lessons learned
+
+> TODO (Chetan): What did building on top of an LLM teach you about trusting its output?
+
+## If I did it again
+
+> TODO (Chetan): Anything about the pipeline you'd design differently now?
