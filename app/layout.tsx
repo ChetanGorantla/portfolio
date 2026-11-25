@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Silkscreen } from "next/font/google";
 import type { ReactNode } from "react";
@@ -54,6 +55,7 @@ export default function RootLayout({ children, modal }: { children: ReactNode; m
         <Footer links={links} />
         {modal}
         <IncidentClickGuard />
+        <Analytics />
       </body>
     </html>
   );
