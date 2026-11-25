@@ -24,7 +24,7 @@ export default async function IncidentPage({ params }: Props) {
   if (!service) notFound();
   return (
     <div className="shell py-10 sm:py-14">
-      <div className="on-dark mx-auto max-w-[70ch]">
+      <div className="on-dark mx-auto max-w-[44rem]">
         <Link href="/" className="label-tag text-sm text-on-dark-muted transition-colors hover:text-on-dark">
           ← Back to dashboard
         </Link>

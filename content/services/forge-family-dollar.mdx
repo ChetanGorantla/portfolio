@@ -1,54 +1,50 @@
 ---
 slug: forge-family-dollar
-title: Forge × Family Dollar
+title: Family Dollar
 org: Texas Convergent
 role: Tech Lead
 dates: Fall 2026 – Present
 group: experience
 status: in-progress
-featured: true
-order: 1
+featured: false
+order: 3
 metric:
   label: time to identify skimmers
   before: days
   after: hours
-outcome: Leading engineering for 2 company-wide projects, working directly with the CIO
-summary: Leading the engineering initiative for 2 projects in Texas Convergent's company-wide Forge partnership with Family Dollar.
-tags: [Python, YOLO, GCP]
+outcome: null
+summary: "Leading engineering on 2 projects with Family Dollar, working directly with the CIO: out-of-stock shelves and pinpad skimmers."
+tags: [Python, GCP, Computer Vision, Real world constraints]
+numbers:
+  - value: "2"
+    label: projects with Family Dollar
 links:
   demo: null
   repo: null
 media: null
 ---
 
-## Summary
+{/* TODO (Chetan): Update this report with where the two projects stand now. */}
 
-**Status: in progress.** This is a live incident update, not a postmortem. The work is still running.
+## In short
 
-Texas Convergent's Forge program has a partnership with Family Dollar that spans the whole company. I'm the Tech Lead for it: I lead the engineering initiative for 2 projects under the partnership, and I work directly with the CIO.
+I'm Tech Lead for Texas Convergent's company-wide Forge partnership with Family Dollar, leading engineering for 2 projects and working directly with the CIO.
 
-## Context
+## The problem
 
-Two problems, one per project:
+- **Out-of-stock shelves** hurt store efficiency and sell rate.
+- **Pinpad skimmers** target EBT cardholders, who get less protection than credit card customers.
 
-- **Out-of-stock shelves.** Family Dollar faces an issue of out-of-stock shelves generating poor trends in store efficiency and sell rate.
-- **Pinpad skimmers.** Pinpad skimmers maliciously target EBT cardholders since their services offer less customer protection than credit card companies do.
+## What we're building
 
-## Approach
-
-- **Out-of-stock shelves.** We identify high-risk shelves and derive fullness scores, and observe trends over time.
-- **Pinpad skimmers.** We use two-pass object detection to first locate a pinpad and then identify certain characteristics.
-
-For both, we compare computer-generated results with hand-labeled data for accuracy purposes.
+- **Shelves:** find high-risk shelves, derive fullness scores, and track the trend over time
+- **Skimmers:** two-pass object detection that first locates the pinpad, then checks it for telltale characteristics
+- Both are checked against hand-labeled data for accuracy
 
 ## The hard part
 
-Working in a real-world environment brings tighter constraints than working on a personal project. **Navigating cost, security, and feasibility is the most difficult aspect of the project, not the code.** Finding a balance between the three requires communication across company stakeholders and teams to find an aligned perspective and acknowledge certain tradeoffs.
+A real-world environment is far more constrained than a personal project. Balancing **cost, security, and feasibility** is harder than the code, and it takes communication across company stakeholders to agree on the tradeoffs.
 
-## Resolution
+## What I learned (so far)
 
-Not resolved yet, and that's expected. This report will be updated as the projects ship into production at Family Dollar.
-
-## Lessons learned (so far)
-
-**Leading a team is harder than it sounds.** I've had to defend my teams' decisions, weigh outcomes on the fly, and maintain a great personal understanding of what's going on at every step of development. On top of that, keeping morale high when we face challenges is difficult, but necessary. As a leader, I'm prepared for any challenges we may face.
+Leading a team means defending its decisions, weighing outcomes on the fly, and knowing what's going on at every step. Keeping morale high when we hit problems is hard, but necessary.

@@ -140,6 +140,19 @@
     color: var(--ink-muted);
   }
 
+  /*
+   * Small uppercase label on the ivory plates (dates, report section heads, status). Plain Inter: the pixel font stays
+   * on the dark chrome (section tags, the lever), so everything you read on a plate is one typeface.
+   */
+  .kicker {
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
   /* A section label on the dark engine room: a small dark tag behind it so it reads over the machinery. */
   .label-tag {
     display: inline-block;
@@ -269,28 +282,6 @@
   100% {
     transform: scale(2.8);
     opacity: 0;
-  }
-}
-
-/*
- * Count-up numbers. Hidden until the client takes over, with a CSS fallback
- * that reveals the final value if JavaScript never runs.
- */
-[data-countup]:not([data-ready]) {
-  opacity: 0;
-  animation: countup-reveal 0s linear 1.2s forwards;
-}
-
-@keyframes countup-reveal {
-  to {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-countup]:not([data-ready]) {
-    opacity: 1;
-    animation: none;
   }
 }
 

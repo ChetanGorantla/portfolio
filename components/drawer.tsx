@@ -118,7 +118,7 @@ export function Drawer({ children, labelledBy }: { children: ReactNode; labelled
     >
       <div className="h-full overflow-y-auto overscroll-contain">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface/95 px-4 py-2.5 backdrop-blur-sm sm:px-8">
-          <span className="label">Logbook · Incident report</span>
+          <span className="kicker">Logbook · Incident report</span>
           <button
             type="button"
             onClick={() => dialog.current?.close()}
@@ -130,7 +130,7 @@ export function Drawer({ children, labelledBy }: { children: ReactNode; labelled
             </kbd>
           </button>
         </div>
-        <div className="px-4 pt-8 pb-16 sm:px-8">{children}</div>
+        <div className="px-4 pt-6 pb-10 sm:px-8">{children}</div>
       </div>
     </dialog>
   );

@@ -1,59 +1,49 @@
 ---
 slug: detectfx
 title: DetectFX
-org: null
+org: Solo project
 role: ML guitar tone emulator
 dates: Jul 2025
 group: project
 status: shipped
 featured: false
 order: 3
-metric: null
-outcome: Identifies 13 guitar effects from a recording and recreates the tone
-summary: Hears which effects are on a guitar recording and rebuilds the tone with DSP effects written in NumPy and SciPy.
-tags: [Python, NumPy/SciPy, ML, Supabase]
+metric:
+  label: guitar effects identified
+  before: null
+  after: "13"
+outcome: null
+summary: Hears which effects are on a guitar recording and rebuilds the tone with DSP written in NumPy and SciPy.
+tags: [Python, NumPy/SciPy, ML, Supabase, FastAPI]
+numbers:
+  - value: 82%
+    label: Replication accuracy
+  - value: "10"
+    label: DSP effects built in NumPy/SciPy
 links:
   demo: null # TODO (Chetan): detectfx.vercel.app returns 404 right now. Add the link back if you redeploy.
   repo: https://github.com/ChetanGorantla/DetectFX
 media: null
 ---
 
-## Summary
+## In short
 
-DetectFX listens to a guitar recording, identifies which of 13 effects are on it, and recreates the tone. A trained classifier does the identifying. A set of DSP effects I built in NumPy and SciPy does the recreating.
+DetectFX listens to a guitar recording, identifies which of 13 effects are on it, and recreates the tone with DSP effects I wrote in NumPy and SciPy.
 
-## Context
+## The problem
 
-I'm learning guitar, which mostly means hearing a tone on a recording and having no idea how to get it. Is that a Tube Screamer or a RAT? Spring reverb or plate? Answering by ear usually means buying pedals until something sounds right.
+I'm learning guitar, which mostly means hearing a tone and having no idea how to get it. Tube Screamer or RAT? Spring reverb or plate? Answering by ear usually means buying pedals until something sounds right, and online software is expensive.
 
-DetectFX makes the computer do the guessing. Give it a recording and it ranks which of 13 effect classes are likely on it. Give it your clean DI track next to a reference and it tries to push your sound toward the reference. I built it solo and shipped it in July 2025: React on Vercel, FastAPI on Heroku, and Supabase for auth and storage.
+## What I built
 
-## Approach
-
-- **Classify.** A 13-class guitar-effect classifier, trained on the EGFxSet dataset.
-- **Measure.** An 18-dimensional audio feature delta, derived from FFT analysis.
-- **Recreate.** Threshold-calibrated rules map that feature delta to 9 conditional DSP effects. I built 10 DSP effects in NumPy/SciPy, covering frequency filters, feedback delay networks, and nonlinear waveshaping.
-- **Store.** Storage is decoupled from compute using UUID-namespaced, per-user Supabase paths.
+- **Classify:** a 13-class effect classifier trained on the EGFxSet dataset
+- **Measure:** an 18-dimensional audio feature delta from FFT analysis
+- **Recreate:** calibrated rules map that delta to 9 conditional effects, drawn from 10 DSP effects I built: filters, feedback delay networks, and waveshaping
 
 ## The hard part
 
-**512 MB.** Inference had to fit inside a 512 MB Heroku dyno. I got it there with staged profiling, finding where the memory went one stage at a time instead of guessing.
+**512 MB.** Inference had to fit in a 512 MB Heroku dyno. I used staged profiling to find where the memory went, one stage at a time. One early find: the 47 MB classifier was being loaded from disk on every request.
 
-## Resolution
+## What I learned
 
-- Identifies 13 guitar effects from a recording and recreates the tone.
-- Inference fits in a 512 MB Heroku dyno.
-- 10 DSP effects built in NumPy/SciPy.
-- Per-user storage separated with UUID-namespaced Supabase paths.
-
-## Lessons learned
-
-**Measure first, then fix.** My commit log from deploy day is mostly guessing: "testing if librosa is the problem," a detour through Render and Docker, then Heroku. Nothing moved until I logged memory after every stage. One of the first things that turned up was almost embarrassing: the 47 MB classifier was being loaded from disk inside the request handler, on every request.
-
-**A safety net isn't a fix.** I also added a watchdog that restarts the dyno through the Heroku API when memory passes 400 MB. It's useful, the way a smoke detector wired to the sprinklers is useful. It just shouldn't be plan A.
-
-## If I did it again
-
-- **Connect the two halves.** Detection and recreation are separate endpoints, and recreation never asks the classifier anything. It works from the feature delta alone and always starts with overdrive and fuzz, even when the classifier would have said "Clean."
-- **Index features by name.** The rules read the 18-number feature vector by position, and the label list drifted out of order from the vector. The rule labeled "rms" actually reads spectral rolloff. A named structure would have caught that.
-- **Keep time in the features.** The classifier sees each clip as 16 numbers averaged over the whole recording. That works for distortion, which reshapes the spectrum. Delay, flanger, and phaser live in how the sound changes over time, and averaging erases exactly that.
+**Measure first, then fix.** My deploy-day commits were mostly guesses until I logged memory after every stage. Next time I'd index features by name: the rules read the feature vector by position, and the rule labeled "rms" actually reads spectral rolloff.

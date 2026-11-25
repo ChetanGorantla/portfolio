@@ -6,57 +6,47 @@ role: null
 dates: Apr 2026
 group: project
 status: winner
-statusLabel: "winner · Best Use of Gemini, 200+ teams"
 featured: false
 order: 1
-metric: null
+metric:
+  label: Best Use of Gemini · 200+ teams
+  before: null
+  after: Winner
 outcome: null
-summary: A platform that ingests PDFs, GitHub, and Slack into a typed knowledge graph and answers questions over it with validated citations.
+summary: Turns PDFs, GitHub, and Slack into a knowledge graph, then answers questions with validated citations.
 tags: [Next.js, TypeScript, pgvector, Gemini]
+numbers:
+  - value: "250"
+    label: nodes in a typed knowledge graph
+  - value: "4"
+    label: teammates, one weekend
 links:
-  demo: https://devpost.com/software/stealth-3jx6wi
+  demo: https://www.loom.com/share/41fcd99e36da4e43b8a09dbc31d63298
   repo: https://github.com/ChetanGorantla/Ontology
-media: null
+media:
+  type: images
+  src: [/media/ontology.png]
+  alt: ["Graph view of a Computer Architecture workspace: a 3D knowledge graph of concepts and sources, with the source list on the left and the Ask panel on the right"]
 ---
 
-## Summary
+## In short
 
-Ontology won **Best Use of Google Gemini** at a UT Austin hackathon, out of 200+ teams. It's a Next.js/TypeScript platform that ingests PDFs, GitHub, and Slack into a typed knowledge graph, then answers questions over it with a Gemini 2.5 tool-calling RAG loop that validates its citations.
+Ontology won **Best Use of Google Gemini** at a UT Austin hackathon, out of 200+ teams. It ingests PDFs, GitHub, and Slack into a typed knowledge graph, then answers questions with a Gemini 2.5 tool-calling RAG loop that validates its citations.
 
-## Context
+## The problem
 
-What a team knows ends up split across PDFs, a GitHub repo, and a Slack workspace. The usual fix is a chat box on top that answers confidently and shows none of its work. We wanted the opposite: drop in your sources, watch them become a map of concepts, questions, and tasks, and get answers that show exactly which sources and which part of the graph they came from.
+A team's knowledge ends up split across PDFs, a repo, and Slack, and the usual chat box on top answers confidently without showing its work. We wanted every claim to trace back to a source.
 
-There were four of us, and we built it over a weekend in April 2026 with NotebookLM as the reference point. Every feature had to serve one of two rules. **Validation:** every claim traces back to a source. **Centralization:** good graphs can be published, browsed, and forked.
+## What we built
 
-## Approach
-
-- **Ingestion.** PDFs, GitHub, and Slack go in through an async job queue and come out as a typed, 250-node knowledge graph.
-- **Retrieval.** A Gemini 2.5 tool-calling RAG loop pulls the top 7 matches from pgvector, with context caching so the same context isn't sent twice.
-- **Isolation.** Tenants are kept apart with Postgres row-level security.
+- **Ingestion:** an async job queue turns PDFs, GitHub, and Slack into a typed, 250-node knowledge graph
+- **Retrieval:** top-7 pgvector matches with context caching, so the same context isn't sent twice
+- **Isolation:** tenants kept apart with Postgres row-level security
 
 ## The hard part
 
-**The same thing, named three ways.** A person or project shows up in a PDF, a repo, and a Slack thread, written slightly differently each time. I deduplicated entities with cosine-similarity embeddings, then used Union-Find to merge matches. That way, near-duplicates connected only through a chain of matches still end up as one node.
+**The same thing, named three ways.** People and projects show up across PDFs, repos, and Slack under slightly different names. I deduplicated entities with cosine-similarity embeddings, then merged matches with Union-Find, so near-duplicates linked only through a chain still become one node.
 
-**Answers you can check.** Every answer goes through citation validation, so its claims point back to real sources instead of plausible-sounding ones.
+## What I learned
 
-## Resolution
-
-- Won Best Use of Gemini, out of 200+ teams.
-- A typed 250-node knowledge graph built from PDFs, GitHub, and Slack.
-- Top-7 pgvector retrieval with context caching and citation validation. Tenants isolated by row-level security.
-
-## Lessons learned
-
-**Agree on the seams before anyone writes code.** Four people building one app in a weekend only works if they don't block each other. We wrote specs and a schema doc first, marking each contract as locked, stable, or flexible. The AI functions started as stubs with fixed signatures, so frontend, backend, and AI work could all happen at once.
-
-**Trust is mostly plumbing.** The prompt matters less than the code around it. Answers come back with chunk IDs, citations to chunks that aren't in the workspace get dropped, and when there's nothing to stand on, the answer says "insufficient evidence" instead of improvising.
-
-**Insure the demo.** The seeded demo workspace answers its showcase questions from precomputed responses, with zero model calls. A live demo is the worst possible time to discover a rate limit.
-
-## If I did it again
-
-- **Check the quote, not just the chunk.** Validation confirms a cited chunk exists, but not that the quoted text actually appears in it. A model can cite a real source with a made-up quote. A fuzzy match against the chunk text would close that gap.
-- **Let RLS cover the AI path.** The ask route checks access with the user's token, but the pipeline behind it runs on the service-role key and relies on every query adding its own workspace filter. One forgotten filter is a cross-tenant leak. Running retrieval as the user would make Postgres enforce isolation.
-- **Persist the cache registry.** The map from workspace to Gemini context cache lives in process memory. On serverless, every new instance forgets the cache exists and resends the full context, while the old cache sits unused until its 1-hour TTL runs out.
+**Agree on the seams first.** We wrote specs and a schema doc before any code, and stubbed the AI functions with fixed signatures, so frontend, backend, and AI work ran in parallel. Next time I'd also check that a quoted citation actually appears in its chunk, not just that the chunk exists.

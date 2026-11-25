@@ -4,72 +4,44 @@ title: Engineering Chair
 org: Texas Convergent
 role: Engineering Chair
 dates: Jun 2026 – Present
-group: teaching
+group: experience
 status: operational
-featured: true
-order: 1
-metric: null
-outcome: Lead curriculum for a 100+ member engineering org
-summary: I run 5 workshops a semester on system design and cloud architecture, and I launched the secure member portal that 700+ applicants have used.
-stats:
-  - 100+ engineers
-  - 5 workshops / semester
-  - 700+ applicants on the portal I launched
-# TODO (Chetan): Replace with your real workshop titles (5 per semester).
-runbooks:
-  - id: RB-01
-    title: System design fundamentals
-  - id: RB-02
-    title: Cloud systems
-  - id: RB-03
-    title: Architecture case studies
-tags: [System design, Cloud architecture, Leadership, Problem-solving]
+featured: false
+order: 4
+metric:
+  label: engineers · 5 workshops a semester
+  before: null
+  after: 100+
+outcome: null
+summary: Teach system design and cloud architecture. Launched the member portal (700+ applicants) and rotating-QR check-in that ended check-in fraud.
+tags: [System design, Cloud architecture, Problem solving, Leadership]
+numbers:
+  - value: 700+
+    label: applicants on the member portal
 links:
   demo: https://txconvergent.org/
   repo: null
 media: null
 ---
 
-## Summary
+## In short
 
-I'm Engineering Chair at Texas Convergent, where I lead the curriculum for a 100+ member engineering org. That means 5 workshops every semester on system design and cloud architecture. I also launched the org's secure member portal, which has served 700+ applicants, and shut down check-in fraud with rotating QR codes.
+I lead the curriculum for Texas Convergent's 100+ member engineering org: 5 workshops a semester on system design and cloud architecture. I also launched the org's secure member portal (700+ applicants) and ended attendance fraud with rotating QR codes.
 
-## Context
+## The problem
 
-Students have the space to build projects in Convergent - but lack the exposure needed to make them scale. My job is to expose them to the tools that are widely used across the industry, and demonstrate how distributed systems are built to scale.
+Members have room to build projects at Convergent, but little exposure to what makes them scale. My job is to show them the tools used across the industry, and how distributed systems are built to scale.
 
-My biggest goal is ensuring that, from my curriculum, every member can take away important engineering principles that they can apply to their own creations, inside or outside of Convergent.
+## What I built
 
-## Approach
-
-The curriculum is 5 workshops a semester, built around two subjects: **system design** and **cloud architecture**. The runbook index on the dashboard lists them.
-
-To teach a concept, I:
-
-1. describe the motivation and high level design,
-2. dive deeper into design decisions and tradeoffs behind the tool or system,
-3. demonstrate examples in the real-world that it appears in,
-4. and ask members to brainstorm other use cases.
+- **The curriculum:** each concept goes from motivation and high-level design, to the decisions and tradeoffs behind it, to real-world examples, then members brainstorm their own use cases
+- **Member portal:** Next.js, Supabase, and PostgreSQL, serving 700+ applicants
+- **QR check-in:** tokens that rotate every second, which ended replay-attack check-in fraud
 
 ## The hard part
 
-**Teaching peers.** Being confident is one thing, but being knowledgeable enough to back up my presentations when questions are asked is another thing. To do so, I do a lot of research on these topics and digest as much intuition as I can.
+**Teaching peers.** Being confident is one thing; knowing enough to back up a presentation when the questions start is another. To get there, I research each topic thoroughly and build as much intuition as I can.
 
-**Still building.** Two pieces of the org's infrastructure are mine:
+## What I learned
 
-- **Member portal.** A secure internal portal on Next.js, Supabase, and PostgreSQL, serving 700+ applicants.
-- **QR check-in.** A check-in code that never changes can be screenshotted and replayed by someone who isn't in the room. I built rotating-token QR authentication that refreshes every second, which eliminated replay-attack check-in fraud.
-
-## Resolution
-
-- 5 workshops per semester for a 100+ member engineering org.
-- Member portal live, serving 700+ applicants.
-- Replay-attack check-in fraud eliminated with QR tokens that rotate every second.
-
-## Lessons learned
-
-**Teaching someone else is the best way to learn.** I've grown my intuition as an engineer by studying systems, and I've improved my communication and leadership ability by taking ownership of these students' curriculum.
-
-## If I did it again
-
-I would try to step deeper into the shoes of the members and learn what exactly they seek to get out of my curriculum, so that I can tailor the topics towards their interests, treating it as a feedback loop.
+Teaching is the best way to learn. Studying systems to teach them has sharpened my engineering intuition, and owning the curriculum has improved my communication and leadership. Next, I want to treat it as a feedback loop and tailor topics to what members want from it.

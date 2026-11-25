@@ -1,30 +1,19 @@
-// Whether the engine room's machinery runs. Off by default when the visitor's OS asks for reduced motion; the
-// lever in the status bar overrides that either way and remembers the choice.
+// Motion settings for the engine room and the 404 labyrinth. There's no on/off switch: the room never moves on its
+// own, and what motion is left (parallax on scroll, a clicked easter egg, the 404 automaton) follows the OS's
+// reduced-motion setting.
 
-const KEY = "machinery";
-const EVENT = "machinery-change";
+const QUERY = "(prefers-reduced-motion: reduce)";
 
-export function machineryOn(): boolean {
-  const saved = localStorage.getItem(KEY);
-  if (saved === "on") return true;
-  if (saved === "off") return false;
-  return !matchMedia("(prefers-reduced-motion: reduce)").matches;
+/** True when the visitor's OS asks for reduced motion. */
+export function reducedMotion(): boolean {
+  return matchMedia(QUERY).matches;
 }
 
-export function setMachinery(on: boolean) {
-  localStorage.setItem(KEY, on ? "on" : "off");
-  window.dispatchEvent(new Event(EVENT));
-}
-
-/** Calls `cb` when the lever is pulled or the OS setting changes (with no saved choice). */
-export function onMachineryChange(cb: () => void) {
-  const mq = matchMedia("(prefers-reduced-motion: reduce)");
-  window.addEventListener(EVENT, cb);
+/** Calls `cb` when the OS setting changes. */
+export function onReducedMotionChange(cb: () => void) {
+  const mq = matchMedia(QUERY);
   mq.addEventListener("change", cb);
-  return () => {
-    window.removeEventListener(EVENT, cb);
-    mq.removeEventListener("change", cb);
-  };
+  return () => mq.removeEventListener("change", cb);
 }
 
 /** Ask the engine room to run its health check (the status dot in the header does this). */

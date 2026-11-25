@@ -1,4 +1,4 @@
-import { Children, isValidElement, type ComponentProps, type ReactNode } from "react";
+import type { ComponentProps } from "react";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import type { MDXComponents as Components } from "mdx/types";
 import { ExternalLink, isExternal } from "./links";
@@ -8,16 +8,18 @@ import { ExternalLink, isExternal } from "./links";
 export const inlineLink =
   "text-accent underline decoration-accent/30 underline-offset-[3px] transition-colors hover:decoration-accent";
 
-function A({ href = "", children }: ComponentProps<"a">) {
-  return isExternal(href) ? (
-    <ExternalLink href={href} className={inlineLink}>
-      {children}
-    </ExternalLink>
-  ) : (
-    <a href={href} className={inlineLink}>
-      {children}
-    </a>
-  );
+function linkTo(className: string) {
+  return function A({ href = "", children }: ComponentProps<"a">) {
+    return isExternal(href) ? (
+      <ExternalLink href={href} className={className}>
+        {children}
+      </ExternalLink>
+    ) : (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    );
+  };
 }
 
 function Strong(props: ComponentProps<"strong">) {
@@ -25,60 +27,43 @@ function Strong(props: ComponentProps<"strong">) {
 }
 
 const shared: Components = {
-  a: A,
+  a: linkTo(inlineLink),
   strong: Strong,
   code: (props) => <code className="rounded bg-surface-sunken px-1 py-0.5 font-mono text-[0.85em]" {...props} />,
 };
 
-/** Incident report bodies. */
+/** An incident report's sections (one per cell of its two-column grid). */
 const report: Components = {
   ...shared,
-  h2: (props) => <h2 className="mt-10 mb-3 text-lg font-semibold tracking-tight text-ink first:mt-0" {...props} />,
-  h3: (props) => <h3 className="mt-6 mb-2 font-semibold text-ink" {...props} />,
-  p: (props) => <p className="my-4 leading-7" {...props} />,
-  ul: (props) => <ul className="my-4 list-disc space-y-2 pl-5 leading-7 marker:text-ink-muted" {...props} />,
-  ol: (props) => <ol className="my-4 list-decimal space-y-2 pl-5 leading-7 marker:text-ink-muted" {...props} />,
-  blockquote: (props) => (
-    <blockquote
-      className="my-4 rounded-lg border border-dashed border-ink-muted/40 bg-surface-sunken px-4 py-3 text-[15px] text-ink-muted [&>p]:my-0"
-      {...props}
-    />
+  h3: (props) => <h3 className="mt-3 mb-1 font-semibold text-ink first:mt-0" {...props} />,
+  p: (props) => <p className="mt-2 text-[14.5px] leading-[1.55] text-ink/85 first:mt-0" {...props} />,
+  ul: (props) => <ul className="mt-2 list-[square] space-y-1 pl-4 text-[14.5px] leading-[1.55] text-ink/85 marker:text-ok first:mt-0" {...props} />,
+  ol: (props) => (
+    <ol className="mt-2 list-decimal space-y-1 pl-5 text-[14.5px] leading-[1.55] text-ink/85 marker:font-semibold marker:text-ink-muted first:mt-0" {...props} />
   ),
+};
+
+/** A report's opening "In short" section. */
+const lead: Components = {
+  ...shared,
+  p: (props) => <p className="mt-3 text-base leading-relaxed text-ink first:mt-0" {...props} />,
 };
 
 /** Hero paragraph(s) on the dashboard. */
 const hero: Components = {
   ...shared,
-  p: (props) => <p className="mt-4 max-w-[62ch] text-lg leading-8 text-ink" {...props} />,
+  p: (props) => <p className="mt-3 max-w-[62ch] text-[15px] leading-relaxed text-ink/85 first:mt-0 sm:text-base" {...props} />,
 };
 
-/** Small panels (changelog, on-call notes). */
-const panel: Components = {
+/** A list as one dot-separated line of light text on the dark scene ("Off the clock"). */
+const inline: Components = {
   ...shared,
-  p: (props) => <p className="mt-3 leading-7 first:mt-0" {...props} />,
-  ul: (props) => <ul className="mt-3 space-y-2.5 leading-7" {...props} />,
+  a: linkTo("text-on-dark underline decoration-on-dark/40 underline-offset-[3px] transition-colors hover:decoration-on-dark"),
+  ul: (props) => <ul className="flex flex-wrap gap-x-2 gap-y-1 text-sm text-on-dark-muted" {...props} />,
+  li: (props) => <li className="after:ml-2 after:content-['·'] last:after:content-none" {...props} />,
 };
 
-/** Changelog entries: `- **Nov 2026**: text` renders as a date column + text. */
-const changelog: Components = {
-  ...panel,
-  ul: (props) => <ul className="divide-y divide-border" {...props} />,
-  li: ({ children }) => {
-    const [first, ...rest] = Children.toArray(children);
-    if (!isValidElement<{ children: ReactNode }>(first) || first.type !== Strong) {
-      return <li className="py-3 leading-6">{children}</li>;
-    }
-    if (typeof rest[0] === "string") rest[0] = rest[0].replace(/^\s*[:–—-]\s*/, "");
-    return (
-      <li className="grid grid-cols-[8.5rem_1fr] gap-3 py-3 leading-6 first:pt-0 last:pb-0">
-        <span className="label pt-1 leading-5 whitespace-nowrap">{first.props.children}</span>
-        <span>{rest}</span>
-      </li>
-    );
-  },
-};
-
-const VARIANTS = { report, hero, panel, changelog };
+const VARIANTS = { report, lead, hero, inline };
 
 export function Mdx({ source, variant }: { source: string; variant: keyof typeof VARIANTS }) {
   return <MDXRemote source={source} components={VARIANTS[variant]} />;

@@ -9,12 +9,15 @@ status: shipped
 featured: false
 order: 2
 metric:
-  label: GPU throughput, 17K tok/sec
-  before: 1×
+  label: GPU throughput · 17K tokens/sec
+  before: null
   after: 100×
 outcome: null
-summary: A LLaMA 3.1 evacuation simulator that makes 6 routing decisions per tick at 17K tokens per second.
-tags: [LLaMA 3.1, Kafka, Python, graph search]
+summary: Evacuation simulator where LLaMA 3.1 makes 6 routing decisions per tick, with Monte Carlo runs across Kafka workers.
+tags: [LLaMA 3.1, Kafka, Python, Graph search]
+numbers:
+  - value: "6"
+    label: routing decisions per tick
 links:
   demo: null # TODO (Chetan): there's no hosted deployment (it runs locally). Add a video link if you record one.
   repo: https://github.com/ChetanGorantla/jimmysimulation
@@ -24,46 +27,24 @@ media:
   alt: ["Dashboard view: a two-floor 3D building model with its exits highlighted, next to the scene controls", "Run-through of the agents: occupants move through the 3D building toward the exits, with the evacuation-rate chart below"]
 ---
 
-## Summary
+## In short
 
-JimmySimulation is an evacuation simulator built at an NVIDIA hackathon. LLaMA 3.1 makes 6 routing decisions per tick at 17K tokens per second, after GPU throughput went from 1× to 100×. Monte Carlo trials run in parallel across Kafka workers to find bottlenecks and exit imbalances.
+An evacuation simulator from an NVIDIA hackathon. LLaMA 3.1 plays the individual occupants, making 6 routing decisions per tick at 17K tokens per second, while a deterministic engine keeps the physics honest. Monte Carlo trials run across Kafka workers to find bottlenecks.
 
-## Context
+## The problem
 
-Most evacuation math treats people like fluid: so many bodies per meter of doorway per second. That gets the mechanics right and the people wrong. Real occupants only know some of the exits, follow the crowd, freeze, or turn back, and those small choices are what add up to a jammed stairwell next to an empty exit.
+Most evacuation math treats people like fluid. Real occupants know only some of the exits, follow the crowd, freeze, or turn back, and those small choices add up to a jammed stairwell next to an empty exit.
 
-So the question was whether a small, fast LLM could play the individual occupants while a deterministic engine kept the physics honest. The model only picks from options the engine offers. The engine owns movement, queueing, and timing. It's a research prototype for architects, not a life-safety tool.
+## What I built
 
-The first version came together at the hackathon, where a teammate built the visual building editor and result overlays. I kept going after it ended: Kafka-backed Monte Carlo runs, hazards, multi-floor buildings, and IFC import all landed that summer.
-
-## Approach
-
-- **Decisions.** LLaMA 3.1 proposes routes, making 6 routing decisions per tick.
-- **Scale.** Monte Carlo evacuation trials are parallelized across Kafka consumer-group workers to surface bottlenecks and exit imbalances.
-- **Routing.** For each exit, a weighted graph search ranks the k shortest evacuation routes by hazard risk, congestion, and crowd popularity.
+- **Decisions:** LLaMA 3.1 picks routes from options the engine offers; the engine owns movement, queueing, timing, and behavior archetypes.
+- **Routing:** a weighted graph search ranks the k shortest routes per exit by hazard, congestion, and crowd popularity
+- **Scale:** Monte Carlo trials across Kafka consumer-group workers, added after the hackathon along with hazards, multi-floor buildings, and IFC import (a teammate built the visual building editor)
 
 ## The hard part
 
-**LLMs will happily route people through walls.** An LLM-proposed route can be hallucinated or discontinuous. Graph-grounded guardrails check every proposal against the graph and reject routes that don't hold up.
+**LLMs will route people through walls.** Graph-grounded guardrails check every proposed route and reject hallucinated or discontinuous ones. And 6 decisions per tick only works if inference keeps up, so GPU throughput had to go from 1× to 100×.
 
-**Keeping up with the simulation.** 6 decisions per tick only works if inference keeps pace, so GPU throughput had to go from 1× to 100×, reaching 17K tokens per second.
+## What I learned
 
-## Resolution
-
-- 6 routing decisions per tick at 17K tok/sec, with GPU throughput at 100× where it started.
-- k-shortest routes per exit, ranked by hazard risk, congestion, and crowd popularity.
-- Hallucinated and discontinuous routes rejected by graph-grounded guardrails.
-
-## Lessons learned
-
-**Plan for the model not showing up.** Calls time out, and a small model returns malformed JSON often enough that every decision needs a deterministic fallback. Adding traits like crowd-following taught me the sharper version: any behavior that lives only in the prompt silently disappears whenever the fallback runs. Now every trait has a mechanical mirror in the fallback, and the decision log records which one made each call.
-
-**Check every hop for the bottleneck.** The client allowed 6 model calls in flight, but the little proxy in front of the model was a single-threaded HTTP server, so it answered them one at a time. The fix was one line.
-
-**Randomness changes what a result means.** The same seed doesn't replay the same run, so one simulation can't tell you layout A beats layout B. Layout comparison runs paired multi-seed Monte Carlo sweeps and compares distributions instead.
-
-## If I did it again
-
-- **Build the LLM-off baseline first.** The whole project asks whether LLM-driven occupants beat a formula, and the deterministic fallback already *is* a formula. There's no switch to run it alone, so the one comparison the project exists for can't be run directly.
-- **Get delivery semantics right before scaling out.** The first Kafka worker auto-committed offsets, so a trial whose result failed to publish could be marked done and quietly lost. Committing only after a confirmed publish fixed it. That's where it should have started.
-- **Own the inference.** Decisions go through a proxy to a free hosted Llama 3.1 8B. It's fast and costs nothing, but it comes with no SLA and no say over quantization.
+**Plan for the model not showing up.** Calls time out and small models return malformed JSON, so every decision has a deterministic fallback, and every prompt-only trait has a mechanical mirror in it. Next time I'd build the LLM-off baseline first: it's the one comparison the project exists for.

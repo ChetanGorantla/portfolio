@@ -2,62 +2,48 @@
 slug: capital-one
 title: Capital One
 org: Capital One
-role: Software Engineering Intern, Card Tech Platform
+role: Software Engineering Intern · Card Tech Platform
 dates: Jun – Aug 2026
 group: experience
 status: resolved
-featured: false
-order: 2
+featured: true
+order: 1
 metric:
-  label: Release time
-  before: 3 hours
-  after: 6 minutes
+  label: release time per change
+  before: 3 hrs
+  after: 6 min
 outcome: null
-summary: Built a self-service workflow that cut release time from 3 hours to 6 minutes.
-tags: [Go, Node.js, AWS Lambda, DynamoDB]
+summary: Built a self-service release workflow and Go/DynamoDB APIs that replaced direct production database access. In production, used by 15 engineers across the org.
+tags: [Go, Node.js, AWS Lambda, DynamoDB, CloudWatch, Splunk]
+numbers:
+  - value: "15"
+    label: engineers use it today
+  - value: "5"
+    label: architecture iterations
 links:
   demo: null
   repo: null
 media: null
 ---
 
-## Summary
+## In short
 
-Releasing a cardholder-intent change on the Card Tech Platform took about 3 hours. I built a Node.js self-service workflow that promotes changes from staging to production, and release time dropped to 6 minutes. To make that safe, I also built Go/DynamoDB CRUD APIs and a cross-account promotion pipeline that pages the team when a write fails.
+Releasing a new card benefit took 3 hours of an engineer's time and direct production database access. I built the API layer and self-service workflow that turned it into a 6-minute step.
 
-## Context
+## The problem
 
-When Capital One wants to authorize a new credit card benefit, my team would be tasked with creating the benefit item, testing it in QA, and releasing it to production. That process was slow and insecure:
+Every release pulled an engineer off their work to watch it, and needed direct production DB access, where one mistyped SQL command was a nightmare to undo.
 
-- **Slow.** One engineer needed to step away from their tasks for a day or two to monitor the release.
-- **Insecure.** On top of that, they needed direct production DB access. A mistyped SQL command was a nightmare to resolve.
+## What I built
 
-## Approach
-
-Three pieces, each one making the next possible:
-
-1. **A real API in front of the data.** The system-of-record tables were served by a read-only service, so anything that needed a write went straight to the database. I built Go CRUD APIs on DynamoDB against those tables. They replaced the read-only service and removed direct database access.
-2. **A self-service workflow.** With writes behind an API, I built a Node.js workflow that moves cardholder-intent changes from staging to production as a self-service step.
-3. **A cross-account promotion pipeline.** A QA manifest triggers a Lambda, which calls a production Go API to write the promoted entries.
+1. **Go/DynamoDB CRUD APIs** over the system-of-record tables, replacing direct database access
+2. **A Node.js self-service workflow** that promotes changes from staging to production
+3. **A cross-account pipeline:** QA manifest → Lambda → production Go API
 
 ## The hard part
 
-The entries depend on each other. Promote one without the records it links to, and production ends up technically written and practically wrong. So the production API upserts dependency-linked system-of-record entries **atomically**: the whole set lands, or none of it does.
+Entries depend on each other, so promoting one alone leaves production "written but wrong." The API upserts each linked set **atomically**: all of it lands or none does. Failed writes page the team through CloudWatch → Splunk.
 
-The other half was making failure loud. A promotion pipeline that fails quietly is worse than a slow manual release, because the manual release at least has a person watching it. Write failures go through CloudWatch to Splunk and page the team.
+## What I learned
 
-## Resolution
-
-- Cardholder-intent release time went from **3 hours to 6 minutes**, via self-service staging-to-production promotion.
-- System-of-record tables now sit behind Go/DynamoDB CRUD APIs. The read-only service and direct database access are gone.
-- Cross-account promotions upsert atomically, and failed writes page the team through CloudWatch → Splunk.
-
-## Lessons learned
-
-The component I worked on serviced many downstream components. One of the biggest challenges of the summer was **handling pushback from various teams**.
-
-I met with lots of senior engineers and ICs across the org to understand their perspectives, and based my tradeoffs from there. After **five architecture iterations**, I landed on the one that lives in production today, servicing 15 engineers across my org.
-
-## If I did it again
-
-I'd try to work closer with the QA testers to understand their perspectives, and if there was a direct form of communication I could establish between the maintainers and QA testers.
+Many downstream teams depended on this service, and several pushed back. I met with senior engineers across the org to understand their constraints, and went through 5 architecture iterations before landing the design that runs today.

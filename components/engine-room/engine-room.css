@@ -23,9 +23,7 @@
 }
 
 .engine img,
-.engine-ind,
-.engine-bot,
-.engine-particles {
+.engine-ind {
   image-rendering: pixelated;
 }
 
@@ -56,70 +54,17 @@
   filter: brightness(0.62);
 }
 
-/* Soft light over lamps, flames and the furnace (the pixel art has the hard light baked in). */
+/* Soft light over lamps, flames and the furnace (the pixel art has the hard light baked in). Steady: nothing flickers. */
 .engine-glow {
   position: absolute;
   border-radius: 50%;
   mix-blend-mode: screen;
   background: radial-gradient(circle, rgb(var(--c) / 0.42), rgb(var(--c) / 0.14) 38%, transparent 70%);
-  transition:
-    opacity 300ms ease-out,
-    transform 300ms ease-out;
 }
 
-.engine-glow.is-woken {
-  transform: scale(1.35);
-  filter: brightness(1.6);
-}
-
-.engine[data-on] .engine-glow.is-flicker {
-  animation: engine-flicker 2.4s steps(1) infinite;
-}
-
-.engine[data-on] .engine-glow.is-furnace {
-  animation: engine-furnace 1.7s steps(1) infinite;
-}
-
+/* The status lamp during a health check (only ever started by a click). */
 .engine-glow.is-flashing {
   animation: engine-flash 1.6s steps(1);
-}
-
-@keyframes engine-flicker {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  31% {
-    opacity: 0.86;
-  }
-  47% {
-    opacity: 0.97;
-  }
-  63% {
-    opacity: 0.82;
-  }
-  81% {
-    opacity: 0.94;
-  }
-}
-
-@keyframes engine-furnace {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  20% {
-    opacity: 0.78;
-  }
-  45% {
-    opacity: 0.92;
-  }
-  60% {
-    opacity: 0.7;
-  }
-  80% {
-    opacity: 0.88;
-  }
 }
 
 @keyframes engine-flash {
@@ -151,16 +96,20 @@
   filter: drop-shadow(0 0 4px rgb(80 255 170 / 0.9));
 }
 
-.engine-particles {
+/*
+ * A dark veil over the whole room so it stays in the background: darkest behind the content column, a little lighter
+ * in the margins where the machinery shows. It lets the pointer through to the easter eggs.
+ */
+.engine-veil {
   position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 3;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgb(12 11 9 / 0.7), rgb(12 11 9 / 0.86) 24%, rgb(12 11 9 / 0.86) 76%, rgb(12 11 9 / 0.7));
 }
 
 /* Mouse-only easter eggs (the background is decorative, so they're not in the tab order). */
-.engine-egg,
-.engine-bot {
+.engine-egg {
   position: absolute;
   padding: 0;
   border: 0;
@@ -176,12 +125,4 @@
 /* A faint warm glow under the cursor, so the clickable machinery can be found. */
 .engine-egg:not(.is-plain):hover {
   background: radial-gradient(closest-side, rgb(255 214 140 / 0.26), rgb(255 214 140 / 0.08) 60%, transparent);
-}
-
-.engine-bot {
-  left: 0;
-  top: 0;
-  display: none;
-  background-repeat: no-repeat;
-  transform-origin: center;
 }

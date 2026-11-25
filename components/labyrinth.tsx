@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import manifestJson from "@/lib/scene-manifest.json";
-import { machineryOn, onMachineryChange } from "@/lib/machinery";
+import { onReducedMotionChange, reducedMotion } from "@/lib/machinery";
 import type { SceneManifest } from "@/scene/types";
 import { artPx } from "./engine-room/engine-room";
 
@@ -17,9 +17,9 @@ export function Labyrinth() {
 
   useEffect(() => {
     setPx(artPx());
-    const sync = () => setOn(machineryOn());
+    const sync = () => setOn(!reducedMotion());
     sync();
-    return onMachineryChange(sync);
+    return onReducedMotionChange(sync);
   }, []);
 
   useEffect(() => {

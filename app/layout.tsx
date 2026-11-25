@@ -22,13 +22,13 @@ const description =
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: "Chetan Gorantla · chetan-prod", template: "%s · chetan-prod" },
+  title: { default: "Chetan Gorantla", template: "%s · Chetan Gorantla" },
   description,
   openGraph: {
-    title: "Chetan Gorantla · chetan-prod",
+    title: "Chetan Gorantla",
     description,
     url: "/",
-    siteName: "chetan-prod",
+    siteName: "Chetan Gorantla",
     type: "website",
   },
   twitter: { card: "summary_large_image" },
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#191814" };
 
 export default function RootLayout({ children, modal }: { children: ReactNode; modal: ReactNode }) {
-  const { links } = getProfile();
+  const { name, links } = getProfile();
   return (
     <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} ${mono.variable} ${pixel.variable}`}>
       <body className="flex min-h-dvh flex-col bg-bg font-sans text-ink">
@@ -48,7 +48,7 @@ export default function RootLayout({ children, modal }: { children: ReactNode; m
           Skip to content
         </a>
         <EngineRoom />
-        <StatusBar links={links} />
+        <StatusBar name={name} links={links} />
         <main id="main" className="relative z-10 flex-1">
           {children}
         </main>

@@ -20,10 +20,9 @@ export function ExternalLink({ href, children, className, ...rest }: ComponentPr
 
 export type ContactLink = { label: string; href: string; newTab: boolean };
 
-/** Resume, GitHub, LinkedIn, Email: whichever are filled in. */
+/** GitHub, LinkedIn, Email: whichever are filled in. */
 export function contactLinks(links: Profile["links"]): ContactLink[] {
   const all: (ContactLink | null)[] = [
-    { label: "Resume", href: links.resume, newTab: true },
     links.github ? { label: "GitHub", href: links.github, newTab: true } : null,
     links.linkedin ? { label: "LinkedIn", href: links.linkedin, newTab: true } : null,
     links.email ? { label: "Email", href: links.email, newTab: false } : null,

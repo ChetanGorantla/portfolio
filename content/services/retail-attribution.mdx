@@ -7,53 +7,43 @@ dates: Sept – Dec 2025
 group: experience
 status: shipped
 featured: false
-order: 3
-metric: null
-outcome: Matched point-of-sale transactions to ad impressions within a 2-minute window
-summary: Built a real-time Python and Cloud Run backend that automates ad-to-purchase attribution from speech, POS, and video data.
-tags: [Python, Cloud Run, OpenAI, YOLOv8]
+order: 5
+metric:
+  label: purchase-to-ad match window
+  before: null
+  after: 2 min
+outcome: null
+summary: Real-time Cloud Run backend that ties in-store purchases to ads, using speech, point-of-sale, and video data.
+tags: [Python, GCP, YOLOv8, OpenCV]
+numbers:
+  - value: "3"
+    label: real-time inputs (speech, POS, video)
 links:
   demo: null
   repo: null
 media: null
 ---
 
-## Summary
+## In short
 
-I built a retail attribution backend on Python and Cloud Run. It ingests real-time speech, POS, and video data through 3 REST APIs and matches POS transactions to ad impressions within a 2-minute window, which automates ad-to-purchase attribution.
+I built a real-time retail attribution backend on Python and Cloud Run. It matches point-of-sale transactions to ad impressions within a 2-minute window, which automates ad-to-purchase attribution.
 
-## Context
+## The problem
 
-In-person advertisements are researched to be the most effective form of advertisement. If nobody asked you to round up to donate to the children's hospital, you probably wouldn't think to donate in the first place - but that's not your fault. Measuring how well these advertisements perform is a major challenge faced by retailers across the globe.
+In-person advertisements work: few people think to round up for the children's hospital until the cashier asks for a donation. But measuring how well those ads perform is a major challenge for retailers everywhere.
 
-## Approach
+## What I built
 
-Three input streams, each with its own job:
+- **Ingestion:** 3 REST APIs on Cloud Run for real-time speech, POS, and video data
+- **Speech:** an OpenAI classifier that extracts upsell intent and product mentions
+- **Video:** a YOLOv8/OpenCV pipeline with calibrated proximity scoring to verify cashier-customer interactions
 
-- **Ingestion.** 3 REST APIs on Cloud Run take in real-time speech, POS, and video data.
-- **Speech.** An OpenAI NLP classifier extracts upsell intent and product mentions from the conversation.
-- **Video.** A real-time YOLOv8/OpenCV pipeline uses calibrated proximity scoring to verify cashier-customer interactions.
-
-With those signals in place, the backend matches POS transactions to ad impressions within a 2-minute window.
+These services connect to web-server data streamed by a lightweight Raspberry Pi that records audible cashier interactions.
 
 ## The hard part
 
-Two inputs I couldn't take at face value.
+Two inputs I couldn't take at face value. **Speech is untrusted input:** transcripts end up inside a prompt, so extraction had to resist prompt injection. **Being close isn't interacting:** proximity scoring had to be calibrated before it could verify a real cashier-customer interaction.
 
-**Speech is untrusted input.** Whatever someone says ends up inside a prompt, so the extraction had to be prompt-injection resistant. The transcript is data to classify, not instructions to follow.
+## What I learned
 
-**Being close isn't the same as interacting.** Two people standing near each other on camera aren't necessarily talking. The proximity scoring had to be calibrated before it could be trusted to verify a cashier-customer interaction.
-
-## Resolution
-
-- POS transactions matched to ad impressions within a 2-minute window.
-- Ad-to-purchase attribution automated end to end.
-- Speech classified for upsell intent and product mentions with prompt-injection-resistant extraction. Cashier-customer interactions verified from video.
-
-## Lessons learned
-
-**Coordinating hardware and software together requires a strong understanding of tradeoffs between memory and compute.** A big challenge was deciding where to draw the line in the pipeline to separate the tasks of hardware vs software. By observing memory limitations with the Raspberry Pi, I decided that the hardware should remain lightweight and shift accuracy-critical inference to the software side.
-
-## If I did it again
-
-I'd want to run field tests to see how well this would scale in production, and observe the cost associated. Feasibility experiments would go a long way to see if companies should invest in this internally, or outsource this task to a startup.
+Splitting work between hardware and software is a memory-versus-compute tradeoff. The Raspberry Pi's memory limits led me to keep the hardware lightweight and move accuracy-critical inference to the backend. Next, I'd field-test it to see how cost scales in production.

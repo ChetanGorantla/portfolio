@@ -7,9 +7,13 @@ const CONTENT_DIR = path.join(process.cwd(), "content");
 const PUBLIC_DIR = path.join(process.cwd(), "public");
 
 export type Status = "resolved" | "shipped" | "in-progress" | "winner" | "operational";
-export type Group = "experience" | "teaching" | "project";
+export type Group = "experience" | "project";
 
-export type Metric = { label: string; before: string; after: string };
+/** `before → after`, or a single value when `before` is null. */
+export type Metric = { label: string; before: string | null; after: string };
+
+/** An extra headline number in an incident report, beside the metric. */
+export type Figure = { value: string; label: string };
 
 export type MediaItem = { src: string; alt: string };
 
@@ -36,30 +40,30 @@ export type Service = {
   metric: Metric | null;
   outcome: string | null;
   summary: string;
+  /** Every tool; cards show the first 4, the report shows them all. */
   tags: string[];
   links: { demo: string | null; repo: string | null };
   media: Media | null;
-  stats: string[];
-  runbooks: { id: string; title: string }[];
+  numbers: Figure[];
   body: string;
 };
 
-export type OverviewTile = { value: string; label: string; href: string; status?: Status };
+/** An employer or org on the Experience ledger: its logo (with the SVG's own aspect ratio) or a one-line note. */
+export type Org = { name: string; logo: { src: string; width: number; height: number } | null; note: string | null };
 
 export type Profile = {
   name: string;
+  tagline: string;
   currently: string[];
-  focus: string[];
-  previously: string[];
-  overview: OverviewTile[];
-  links: { resume: string; github: string | null; linkedin: string | null; email: string | null };
+  overview: Figure[];
+  orgs: Org[];
+  links: { github: string | null; linkedin: string | null; email: string | null };
   hero: string;
 };
 
 export const GROUPS: { id: Group; anchor: string; label: string }[] = [
-  { id: "experience", anchor: "experience", label: "Production experience" },
-  { id: "teaching", anchor: "runbooks", label: "Runbooks: what I teach" },
-  { id: "project", anchor: "projects", label: "Side projects" },
+  { id: "experience", anchor: "experience", label: "Experience" },
+  { id: "project", anchor: "projects", label: "Projects" },
 ];
 
 const STATUSES: Status[] = ["resolved", "shipped", "in-progress", "winner", "operational"];
@@ -114,11 +118,10 @@ function parseService(file: string): Service {
     metric: data.metric ?? null,
     outcome: data.outcome ?? null,
     summary: data.summary,
-    tags: (data.tags ?? []).slice(0, 4),
+    tags: data.tags ?? [],
     links: { demo: data.links?.demo ?? null, repo: data.links?.repo ?? null },
     media: normalizeMedia(data.media, file),
-    stats: data.stats ?? [],
-    runbooks: data.runbooks ?? [],
+    numbers: data.numbers ?? [],
     body: content,
   };
 }
@@ -149,12 +152,30 @@ export function getNextService(slug: string): Service {
   return all[(i + 1) % all.length];
 }
 
-export function getProfile(): Profile {
-  const { data, content } = read("profile.mdx");
-  return { ...(data as Omit<Profile, "hero">), hero: content };
+/** A logo's intrinsic size, from its SVG viewBox, so it can be drawn at any width without layout shift. */
+function logoSize(src: string) {
+  const svg = fs.readFileSync(path.join(PUBLIC_DIR, src), "utf8");
+  const box = svg.match(/viewBox="[\d.-]+[ ,]+[\d.-]+[ ,]+([\d.]+)[ ,]+([\d.]+)"/);
+  if (!box) fail("profile.mdx", `${src} has no viewBox`);
+  return { src, width: Number(box[1]), height: Number(box[2]) };
 }
 
-/** Body of a plain MDX file such as changelog.mdx or oncall.mdx. */
-export function getDoc(name: "changelog" | "oncall"): string {
+export function getProfile(): Profile {
+  const { data, content } = read("profile.mdx");
+  const orgs: Org[] = (data.orgs ?? []).map((o: { name: string; logo?: string | null; note?: string | null }) => ({
+    name: o.name,
+    logo: o.logo ? logoSize(o.logo) : null,
+    note: o.note ?? null,
+  }));
+  return { ...(data as Omit<Profile, "hero" | "orgs">), orgs, hero: content };
+}
+
+/** The org entry for a service's `org`, or a plain one (name only) if profile.mdx doesn't list it. */
+export function getOrg(name: string): Org {
+  return getProfile().orgs.find((o) => o.name === name) ?? { name, logo: null, note: null };
+}
+
+/** Body of a plain MDX file (oncall.mdx). */
+export function getDoc(name: "oncall"): string {
   return read(`${name}.mdx`).content;
 }

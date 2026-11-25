@@ -2,65 +2,46 @@
 slug: jpmorgan-chase
 title: JPMorgan Chase
 org: JPMorgan Chase
-role: Software Engineering Intern, Full-Stack Platform
+role: Software Engineering Intern · Full-Stack Platform
 dates: Jun – Aug 2023
 group: experience
 status: resolved
 featured: false
-order: 4
+order: 2
 metric:
   label: Cassandra read throughput, 10M records
-  before: 1×
+  before: null
   after: 2×
-outcome: Doubled Cassandra read throughput on 10M records and migrated 100+ GB of legacy data to S3 as Parquet.
-summary: Built a scalable data migration pipeline with hardened failure paths.
+outcome: null
+summary: Reshaped Cassandra data models around real query patterns, and moved 100+ GB of legacy data to S3 with a resumable Java pipeline.
 tags: [Java, Cassandra, S3, Parquet]
+numbers:
+  - value: 100+ GB
+    label: legacy data migrated to S3
 links:
   demo: null
   repo: null
 media: null
 ---
 
-## Summary
+## In short
 
-Two jobs on the same data. I doubled Cassandra read throughput on a 10M-record dataset by reshaping the data model around its query patterns. I also migrated 100+ GB of legacy Cassandra data to S3 as Parquet, with a concurrent Java pipeline that can fail partway and pick up where it left off.
+I doubled Cassandra read throughput on a 10M-record dataset, and moved 100+ GB of legacy Cassandra data to S3 as Parquet with a pipeline that can fail partway and pick up where it left off.
 
-## Context
+## The problem
 
-**Reads.** Customer trade data was queried slowly in a dashboard, not making use of Cassandra's tradeoffs.
+A dashboard queried customer trade data slowly, without using what Cassandra is good at. Separately, the company was migrating internal services to AWS to invest in cloud infrastructure.
 
-**Migration.** The company also wanted to perform an internal service migration to AWS to invest in cloud infra.
+## What I built
 
-## Approach
-
-**Reads.** Cassandra rewards tables designed around the queries you actually run. I:
-
-- redesigned row width to match the query patterns,
-- built denormalized query tables, so each common query reads from a table shaped for it,
-- cut network hops with prepared statements and token-aware routing, so requests go straight to a node that owns the data.
-
-**Migration.** The 100+ GB move to S3 as Parquet ran through a Java thread-pool pipeline of concurrent multipart uploads.
+- **Query-shaped tables:** row widths matched to the query patterns, plus denormalized tables so each common query reads from a table built for it
+- **Fewer network hops:** prepared statements and token-aware routing, so requests go straight to a node that owns the data
+- **The migration:** a Java thread-pool pipeline of concurrent multipart uploads to S3
 
 ## The hard part
 
-Making the migration safe to fail. At 100+ GB, something will break partway through, and starting over from zero isn't a plan. I hardened the pipeline with:
+At 100+ GB, something breaks partway through. **Checkpointed retries** resume from the last good point, **idempotent writes** make a retried chunk safe, and **tuned backpressure** keeps the pool from reading faster than it can upload.
 
-- **checkpointed retries**, so a failure resumes from the last good checkpoint,
-- **idempotent writes**, so retrying a chunk is safe to repeat,
-- **backpressure tuning**, so the thread pool doesn't read faster than it can upload.
+## What I learned
 
-## Resolution
-
-- Cassandra read throughput on 10M records went from **1× to 2×**.
-- 100+ GB of legacy Cassandra data migrated to S3 as Parquet.
-- The migration pipeline retries idempotently from checkpoints, with tuned backpressure.
-
-## Lessons learned
-
-**Read-side optimization is the key differentiator between using Cassandra vs other NoSQL databases.** It's important to configure the database as optimally as possible to support fast reads, since that's one of the core motivations behind Cassandra.
-
-**Batching needs precise failure handling and rollbacks** to ensure data recovery.
-
-## If I did it again
-
-I would maintain a watchdog that can observe the status of a batch job rather than waiting for status reports. This would introduce more overhead of a persistent connection, but would allow engineers the organization of tracking currently-running processes.
+Cassandra rewards designing tables around your reads, and that's the reason to choose it over other NoSQL stores. Batch jobs need precise failure handling and rollbacks. Next time I'd add a watchdog that observes running batches instead of waiting for status reports.
