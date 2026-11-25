@@ -34,7 +34,6 @@ export type Service = {
   dates: string | null;
   group: Group;
   status: Status;
-  statusLabel: string;
   featured: boolean;
   order: number;
   metric: Metric | null;
@@ -48,8 +47,13 @@ export type Service = {
   body: string;
 };
 
-/** An employer or org on the Experience ledger: its logo (with the SVG's own aspect ratio) or a one-line note. */
-export type Org = { name: string; logo: { src: string; width: number; height: number } | null; note: string | null };
+export type OrgImage = { src: string; width: number; height: number };
+
+/**
+ * An employer or org on the Experience ledger. A `logo` is a wordmark and replaces the name; a `mark` is a symbol shown
+ * above the name and note. Sizes come from the files, so either can be drawn at any width without layout shift.
+ */
+export type Org = { name: string; logo: OrgImage | null; mark: OrgImage | null; note: string | null };
 
 export type Profile = {
   name: string;
@@ -112,7 +116,6 @@ function parseService(file: string): Service {
     dates: data.dates ?? null,
     group: data.group,
     status: data.status,
-    statusLabel: data.statusLabel ?? data.status,
     featured: Boolean(data.featured),
     order: data.order ?? 99,
     metric: data.metric ?? null,
@@ -145,6 +148,11 @@ export function getService(slug: string): Service | undefined {
   return getServices().find((s) => s.slug === slug);
 }
 
+/** A report's address: /experience/<slug> or /project/<slug> (its group, then its slug). */
+export function reportHref(s: Service) {
+  return `/${s.group}/${s.slug}`;
+}
+
 /** The next card in grid order, wrapping around at the end. */
 export function getNextService(slug: string): Service {
   const all = getServices();
@@ -152,19 +160,26 @@ export function getNextService(slug: string): Service {
   return all[(i + 1) % all.length];
 }
 
-/** A logo's intrinsic size, from its SVG viewBox, so it can be drawn at any width without layout shift. */
-function logoSize(src: string) {
-  const svg = fs.readFileSync(path.join(PUBLIC_DIR, src), "utf8");
-  const box = svg.match(/viewBox="[\d.-]+[ ,]+[\d.-]+[ ,]+([\d.]+)[ ,]+([\d.]+)"/);
+/** An org image's intrinsic size: an SVG's viewBox, or a PNG's header. */
+function imageSize(src: string): OrgImage {
+  const file = path.join(PUBLIC_DIR, src);
+  if (src.endsWith(".png")) {
+    const png = fs.readFileSync(file);
+    return { src, width: png.readUInt32BE(16), height: png.readUInt32BE(20) };
+  }
+  if (!src.endsWith(".svg")) fail("profile.mdx", `${src}: org images must be .svg or .png`);
+  const box = fs.readFileSync(file, "utf8").match(/viewBox="[\d.-]+[ ,]+[\d.-]+[ ,]+([\d.]+)[ ,]+([\d.]+)"/);
   if (!box) fail("profile.mdx", `${src} has no viewBox`);
   return { src, width: Number(box[1]), height: Number(box[2]) };
 }
 
 export function getProfile(): Profile {
   const { data, content } = read("profile.mdx");
-  const orgs: Org[] = (data.orgs ?? []).map((o: { name: string; logo?: string | null; note?: string | null }) => ({
+  type RawOrg = { name: string; logo?: string | null; mark?: string | null; note?: string | null };
+  const orgs: Org[] = (data.orgs ?? []).map((o: RawOrg) => ({
     name: o.name,
-    logo: o.logo ? logoSize(o.logo) : null,
+    logo: o.logo ? imageSize(o.logo) : null,
+    mark: o.mark ? imageSize(o.mark) : null,
     note: o.note ?? null,
   }));
   return { ...(data as Omit<Profile, "hero" | "orgs">), orgs, hero: content };
@@ -172,7 +187,7 @@ export function getProfile(): Profile {
 
 /** The org entry for a service's `org`, or a plain one (name only) if profile.mdx doesn't list it. */
 export function getOrg(name: string): Org {
-  return getProfile().orgs.find((o) => o.name === name) ?? { name, logo: null, note: null };
+  return getProfile().orgs.find((o) => o.name === name) ?? { name, logo: null, mark: null, note: null };
 }
 
 /** Body of a plain MDX file (oncall.mdx). */

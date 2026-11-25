@@ -94,7 +94,7 @@ export interface SceneManifest {
   motes: { x: number; y: number; w: number; h: number }[];
   automaton: AutomatonInfo;
   eggs: { lever: string; gauge: string; lamps: string[]; vent: { x: number; y: number } };
-  /** The big status lamp beside the maker's plate (flashes during a health check). */
+  /** The big status lamp on the engine's base (flashes during a health check). */
   statusLamp: { x: number; y: number };
   /** The 404 page's labyrinth and the path the lost automaton wanders. */
   maze: { src: string; w: number; h: number; path: [number, number][] };

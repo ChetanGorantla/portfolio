@@ -5,7 +5,8 @@ layers:
 
 1. **The dashboard.** Built with Next.js App Router, its content comes from MDX files in `content/`. It is one short
    page: a hero, an Experience ledger grouped by org, and a Projects plate. Every row has the same anatomy (title,
-   dates, one sentence, tools, one result), and each opens a short first-person "incident report".
+   dates, one sentence, tools, one result), and each opens a short first-person project report. (The code and URLs
+   still say "incident" from the original theme; visitors only see "Project report".)
 2. **The engine room.** A procedural pixel-art clockwork scene behind the page, in bronze and verdigris. It is
    painted at build time by plain TypeScript in `scene/` and animated in the browser by
    `components/engine-room/`.
@@ -41,8 +42,9 @@ app/                      Next.js routes
   layout.tsx              Shell: <EngineRoom/>, status bar, <main>, footer, @modal slot, analytics
   page.tsx                Dashboard: Hero → Experience → Projects → "Off the clock" line
   default.tsx             Fallback for the children slot (re-exports page). Do not delete; see "Routing"
-  incidents/[slug]/       Incident report as a full page (direct visits, shared links)
-  @modal/(.)incidents/    The same report in a drawer over the dashboard (intercepted route)
+  experience/[slug]/      A report as a full page (direct visits, shared links); project/[slug]/ is the same for projects
+  @modal/(.)experience/   The same report in a drawer over the dashboard (intercepted route); also (.)project/
+  incidents/[slug]/       Old report addresses: permanently redirects to /experience/<slug> or /project/<slug>
   @modal/default.tsx      Renders nothing when no drawer is open
   not-found.tsx           404 page: a pipe labyrinth with a lost automaton
   opengraph-image.tsx     Share image (Satori), drawn over public/scene/og.png
@@ -94,7 +96,7 @@ All copy lives in `content/`, parsed by `lib/content.ts` with `gray-matter` and 
 | `tagline` | Line under the name; also the OG image's plate |
 | `currently` | The hero's "Now" line (joined with " · ") |
 | `overview[]` | `{ value, label }`: the hero's headline numbers |
-| `orgs[]` | `{ name, logo?, note? }`. Experience rows are grouped by their `org`; a listed org shows its logo (an SVG under `public/`; its viewBox sets the aspect) or its name and note. An org not listed shows its name only |
+| `orgs[]` | `{ name, logo?, mark?, note? }`. Experience rows are grouped by their `org`. A `logo` is a wordmark and replaces the name; without one, the org shows its name and note, with its `mark` (a symbol) above them. Both are `.svg` or `.png` under `public/media/logos/` (the viewBox or PNG header sets the aspect); trim transparent padding so they line up with the text. An org not listed shows its name only |
 | `links` | `{ github, linkedin, email }`; any can be `null`. Used by the status bar, phone menu and footer |
 | body | Hero paragraph |
 
@@ -110,7 +112,6 @@ role: Tech Lead                  # or null; "Role · Team" renders the part afte
 dates: Fall 2026 – Present       # or null
 group: experience                # required: experience | project
 status: in-progress              # required: resolved | shipped | in-progress | winner | operational
-statusLabel: ...                 # optional display text in the report (defaults to status)
 featured: true                   # tints the row's org and enlarges its result
 order: 1                         # order on the page and for "Next" in reports (default 99)
 metric: { label, before, after } # the row's result: "before → after", or just "after" when before is null
@@ -123,7 +124,8 @@ media: null                      # or { type: images|video, src: [...], alt: [..
 ```
 
 - **Groups become sections, in order.** `experience` is "Experience" and `project` is "Projects" (see `GROUPS` in
-  `lib/content.ts`). In-progress and operational roles get a "Current" tag; other statuses show only in the report.
+  `lib/content.ts`). In-progress and operational roles get a "Current" tag (on the page and in the report); no other
+  status is shown anywhere, so visitors never see the old "resolved"/"shipped" wording.
   A winner's result is amber.
 - **Media.** Local `src` paths are under `public/`. Files that are missing don't break the build; a placeholder keeps
   the layout. Remote embeds (YouTube/Loom) load only inside the report. Paths are case-sensitive on Vercel.
@@ -141,14 +143,19 @@ media: null                      # or { type: images|video, src: [...], alt: [..
 
 ## Routing and the drawer
 
-- `/` is the dashboard. Every report link uses `<Link href="/incidents/<slug>" scroll={false}>`.
-- **From the dashboard**, `app/@modal/(.)incidents/[slug]` intercepts the link and renders `<Drawer>`, a native modal
-  `<dialog>` styled as a logbook. A direct visit or a reload renders `app/incidents/[slug]` as a full page instead.
-  Both use `generateStaticParams` with `dynamicParams = false`.
+- `/` is the dashboard. A report lives at `/<group>/<slug>` (`/experience/capital-one`, `/project/ontology`); build
+  links with `reportHref(service)` from `lib/content.ts` and `<Link scroll={false}>`.
+- **From the dashboard**, `app/@modal/(.)experience/[slug]` (or `(.)project/`) intercepts the link and renders
+  `<Drawer>`, a native modal `<dialog>`. A direct visit or a reload renders `app/experience/[slug]` (or `project/`) as a
+  full page instead. All four route files are thin: the shared code is in `components/report-routes.tsx`. Each uses
+  `generateStaticParams` with `dynamicParams = false`, so a slug under the wrong group 404s.
+- **Adding a group** means two new route folders (page and `@modal` drawer) and adding it to `REPORT_LINK` and
+  `REPORT_PATH` in `drawer.tsx`.
+- **Old `/incidents/<slug>` links** (shared before the rename) permanently redirect to the new address.
 - **`app/default.tsx` must exist.** Next 16 needs it for the children slot. Without it, the page behind the drawer
   goes blank after some soft navigations.
 - **The drawer manages its own scroll lock.** It locks `html` overflow when it opens and releases the lock on close,
-  not on unmount. On close it calls `router.back()`. If the URL is still `/incidents/...` with no open dialog, it
+  not on unmount. On close it calls `router.back()`. If the URL is still a report address with no open dialog, it
   falls back to a hard `location.replace("/")`.
 - **`IncidentClickGuard`** (in `drawer.tsx`, mounted in the layout) ignores double-clicks and repeat clicks on report
   links outside the drawer. Stacked history entries for the same report used to strand the page.
@@ -227,7 +234,7 @@ skips hit-testing and will hide this bug.
 - **Layers.** Each layer is `SCENE_W` = 1280 art px wide and centered on the page. The 1100 CSS px content column
   covers about x 365–915, so on wide screens the machinery shows in the margins beside it.
 - **Mid layer zones,** top to bottom:
-  - upper works: fine clockwork, and the flywheel and maker's plate (mostly behind the hero plate now)
+  - upper works: fine clockwork, and the flywheel (mostly behind the hero plate now)
   - middle works: pipes, valves, gauges
   - heavy works: boiler, big gear trains, furnace
 - **Far layer.** Visible only through the mid layer's `OPENING`.

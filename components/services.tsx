@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { GROUPS, getOrg, type Group, type Org, type Service } from "@/lib/content";
+import { GROUPS, getOrg, reportHref, type Group, type Org, type Service } from "@/lib/content";
+import { ExternalLink } from "./links";
 import { Result } from "./metric";
 import { CurrentTag, isCurrent } from "./status";
 
@@ -29,7 +30,7 @@ export function TagList({ tags, className = "" }: { tags: string[]; className?: 
 function ReportLink({ service, children }: { service: Service; children: ReactNode }) {
   return (
     <Link
-      href={`/incidents/${service.slug}`}
+      href={reportHref(service)}
       scroll={false}
       className="after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-accent"
     >
@@ -61,15 +62,23 @@ function Section({ group, children }: { group: Group; children: ReactNode }) {
 
 const rowText = "text-[14.5px] leading-normal text-ink/85";
 
-/** The org column: its logo, or its name and a one-line note. */
+/**
+ * The org column: its wordmark logo, or its name and one-line note under its mark. On wide screens it sticks below the
+ * header while its roles scroll past, so a role never shows without its company. (Narrow screens name the company in
+ * each role's date line instead.)
+ */
 function OrgName({ org }: { org: Org }) {
   return (
-    <h3 className="pt-5 md:py-6">
+    <h3 className="pt-5 md:sticky md:top-[3.25rem] md:self-start md:py-6">
       {org.logo ? (
-        // Plain <img>: an SVG gains nothing from the image optimizer.
+        // Plain <img>: a logo this small gains nothing from the image optimizer.
         <img src={org.logo.src} alt={org.name} width={150} height={Math.round((150 * org.logo.height) / org.logo.width)} className="[image-rendering:auto]" />
       ) : (
         <>
+          {org.mark && (
+            // Decorative: the name is right below it.
+            <img src={org.mark.src} alt="" width={52} height={Math.round((52 * org.mark.height) / org.mark.width)} className="mb-3 [image-rendering:auto]" />
+          )}
           <span className="block text-[17px] leading-tight font-bold tracking-tight text-ink">{org.name}</span>
           {org.note && <span className="mt-1 block text-[12.5px] leading-snug font-normal text-ink-muted">{org.note}</span>}
         </>
@@ -88,7 +97,7 @@ function roleParts(s: Service) {
 function Row({ service: s }: { service: Service }) {
   const [first, ...rest] = roleParts(s);
   return (
-    <li className="group relative grid gap-x-8 gap-y-3 border-t border-dashed border-border py-[18px] first:border-t-0 sm:grid-cols-[1fr_196px]">
+    <li className="group relative grid gap-x-7 gap-y-3 border-t border-dashed border-border py-[18px] first:border-t-0 sm:grid-cols-[1fr_216px]">
       <div className="min-w-0">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
           <h4 className={`leading-snug font-semibold tracking-tight text-ink ${s.featured ? "text-[17px]" : "text-base"}`}>
@@ -103,14 +112,19 @@ function Row({ service: s }: { service: Service }) {
             </ReportLink>
             {isCurrent(s.status) && <CurrentTag />}
           </h4>
-          {s.dates && <span className="flex-none text-[13px] text-ink-muted">{s.dates}</span>}
+          {s.dates && (
+            <span className="flex-none text-[13px] text-ink-muted">
+              {s.org && <span className="md:hidden">{s.org} · </span>}
+              {s.dates}
+            </span>
+          )}
         </div>
         <p className={`mt-1 ${rowText}`}>{s.summary}</p>
         <TagList tags={s.tags.slice(0, 4)} className="mt-2.5" />
       </div>
       <div className="flex items-end justify-between gap-4 sm:flex-col sm:items-start sm:justify-start sm:pt-0.5">
         {s.metric && <Result metric={s.metric} large={s.featured} win={s.status === "winner"} />}
-        <span className="sm:mt-auto">
+        <span className="ml-auto sm:mt-auto sm:self-end">
           <ReadMore />
         </span>
       </div>
@@ -169,8 +183,20 @@ export function Projects({ services }: { services: Service[] }) {
             )}
             <p className={`mt-2 ${rowText}`}>{s.summary}</p>
             <TagList tags={s.tags.slice(0, 4)} className="mt-2.5" />
-            <span className="mt-auto pt-3.5">
-              <ReadMore />
+            <span className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3.5">
+              {s.links.repo && (
+                <ExternalLink href={s.links.repo} className={cardLink}>
+                  Code<span className="sr-only"> for {s.title}</span>
+                </ExternalLink>
+              )}
+              {s.links.demo && (
+                <ExternalLink href={s.links.demo} className={cardLink}>
+                  Demo<span className="sr-only"> of {s.title}</span>
+                </ExternalLink>
+              )}
+              <span className="ml-auto">
+                <ReadMore />
+              </span>
             </span>
           </li>
         ))}
@@ -178,3 +204,7 @@ export function Projects({ services }: { services: Service[] }) {
     </Section>
   );
 }
+
+// Above the card's stretched report link (z-10), so they open the code or demo instead.
+const cardLink =
+  "relative z-10 text-[13px] font-semibold text-accent underline decoration-accent/30 underline-offset-[3px] transition-colors hover:decoration-accent";

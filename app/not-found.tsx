@@ -14,7 +14,7 @@ export default function NotFound() {
           <Labyrinth />
         </div>
         <Link href="/" className="mt-8 inline-block text-sm font-medium text-accent hover:underline">
-          ← Back to dashboard
+          ← Back to home
         </Link>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import type { Profile } from "@/lib/content";
+import { ContactLinkItem, contactLinks } from "./links";
 import { Mdx } from "./mdx";
 import { Portrait } from "./portrait";
 import { StatusDot } from "./status";
@@ -38,6 +39,19 @@ export function Hero({ profile }: { profile: Profile }) {
           </li>
         ))}
       </ul>
+      {/* Phones hide the header's links behind a menu, so the hero shows them. */}
+      <nav aria-label="Contact (hero)" className="col-span-2 sm:hidden">
+        <ul className="flex flex-wrap gap-x-5 gap-y-1">
+          {contactLinks(profile.links).map((link) => (
+            <li key={link.label}>
+              <ContactLinkItem
+                link={link}
+                className="text-sm font-semibold text-accent underline decoration-accent/30 underline-offset-[3px] hover:decoration-accent"
+              />
+            </li>
+          ))}
+        </ul>
+      </nav>
     </section>
   );
 }

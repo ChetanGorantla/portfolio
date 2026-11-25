@@ -47,8 +47,14 @@ export function Gallery({ images }: { images: MediaItem[] }) {
             >
               {videoType(img.src) ? (
                 <>
-                  {/* Plays like a GIF: muted and looping, only while on screen. */}
+                  {/* Plays like a GIF: muted and looping, only while on screen. The badge says it's a video even when still. */}
                   <LazyVideo srcs={[img.src]} label={img.alt} />
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute bottom-2 left-2 rounded-full bg-[#14120e]/80 px-2.5 py-1 text-xs font-semibold text-on-dark"
+                  >
+                    ▶ Video
+                  </span>
                   <span className="sr-only">
                     (open video {i + 1} of {count})
                   </span>
@@ -60,7 +66,7 @@ export function Gallery({ images }: { images: MediaItem[] }) {
                     alt={img.alt}
                     fill
                     sizes="(min-width: 768px) 340px, 100vw"
-                    className="object-cover transition-transform duration-300 motion-safe:hover:scale-[1.02]"
+                    className="object-contain transition-transform duration-300 motion-safe:hover:scale-[1.02]"
                   />
                   <span className="sr-only">
                     (open image {i + 1} of {count})

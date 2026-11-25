@@ -7,6 +7,10 @@ import { useEffect, useRef, type MouseEvent, type ReactNode, type SyntheticEvent
 // survives "Next incident" swaps, which remount the drawer.
 let returnFocusTo: HTMLElement | null = null;
 
+// Report addresses: /<group>/<slug>, one route per group in GROUPS (lib/content.ts, which can't load in the browser).
+const REPORT_LINK = 'a[href^="/experience/"], a[href^="/project/"]';
+const REPORT_PATH = /^\/(experience|project)\//;
+
 /**
  * Opening the same report twice (a double-click, or a second click while the first is still loading) stacks two
  * history entries for it, and closing the drawer then strands the page. So a report link ignores the second click of
@@ -18,7 +22,7 @@ export function IncidentClickGuard() {
     let last = -Infinity;
     const onClick = (e: globalThis.MouseEvent) => {
       if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-      const link = (e.target as Element | null)?.closest?.('a[href^="/incidents/"]');
+      const link = (e.target as Element | null)?.closest?.(REPORT_LINK);
       if (!link || link.closest("dialog")) return;
       const now = performance.now();
       if (e.detail > 1 || now - last < 800) {
@@ -39,7 +43,7 @@ export function IncidentClickGuard() {
  * <dialog>: it traps focus, makes the page behind it inert, and closes on Esc.
  * Every way of closing ends in router.back(), so the URL and history stay in sync.
  */
-export function Drawer({ children, labelledBy }: { children: ReactNode; labelledBy: string }) {
+export function Drawer({ children, labelledBy, title }: { children: ReactNode; labelledBy: string; title: ReactNode }) {
   const router = useRouter();
   const dialog = useRef<HTMLDialogElement>(null);
   const pressStartedOnBackdrop = useRef(false);
@@ -89,7 +93,7 @@ export function Drawer({ children, labelledBy }: { children: ReactNode; labelled
       "popstate",
       () =>
         window.setTimeout(() => {
-          if (window.location.pathname.startsWith("/incidents/") && !document.querySelector("dialog[data-drawer][open]")) {
+          if (REPORT_PATH.test(window.location.pathname) && !document.querySelector("dialog[data-drawer][open]")) {
             window.location.replace("/");
           }
         }, 300),
@@ -117,8 +121,11 @@ export function Drawer({ children, labelledBy }: { children: ReactNode; labelled
       onClick={onClick}
     >
       <div className="h-full overflow-y-auto overscroll-contain">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface/95 px-4 py-2.5 backdrop-blur-sm sm:px-8">
-          <span className="kicker">Logbook · Incident report</span>
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border bg-surface/95 px-4 py-2.5 backdrop-blur-sm sm:px-8">
+          {/* What you're reading stays in view while the report scrolls (the dialog itself is labelled by the h1). */}
+          <span aria-hidden="true" className="min-w-0 truncate text-sm font-semibold text-ink">
+            {title}
+          </span>
           <button
             type="button"
             onClick={() => dialog.current?.close()}

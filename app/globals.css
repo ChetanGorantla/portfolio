@@ -246,9 +246,10 @@
   opacity: 0;
 }
 
+/* It pulses a few times on load, then holds still like everything else. */
 @media (prefers-reduced-motion: no-preference) {
   .pulse-dot::after {
-    animation: pulse-ring 2.6s ease-out infinite;
+    animation: pulse-ring 2.6s ease-out 3;
   }
 }
 

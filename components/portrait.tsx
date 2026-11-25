@@ -1,11 +1,12 @@
 import Image from "next/image";
 
 /**
- * The headshot, cropped to head and shoulders: fractions of the (upright) photo, stopping right of the raised hand.
- * The crop's aspect matches the 4:5 window. The src's case must match the file (Vercel is case-sensitive).
+ * The headshot, cropped to head and shoulders: fractions of the (upright) photo, centered on the face (about 60%
+ * across, 38.6% down) and stopping right of the raised hand (which ends near 34% across). The crop's aspect matches the
+ * 4:5 window. The src's case must match the file (Vercel is case-sensitive).
  */
 const PHOTO = { src: "/media/headshot.JPG", w: 2448, h: 3696 };
-const CROP = { x: 0.4, y: 0.25, w: 0.44, h: 0.3643 };
+const CROP = { x: 0.38, y: 0.250, w: 0.44, h: 0.3643 };
 
 export function Portrait({ name }: { name: string }) {
   return (

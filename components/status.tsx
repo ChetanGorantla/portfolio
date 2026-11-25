@@ -13,25 +13,14 @@ export function StatusDot({ status, className = "" }: { status: Status; classNam
   return <span aria-hidden="true" className={`lamp ${LAMP[status]} ${className}`} />;
 }
 
-/** Lamp + label. Status is never conveyed by color alone. */
-export function StatusTag({ status, label }: { status: Status; label: string }) {
-  return (
-    <span className="inline-flex items-center gap-2">
-      <StatusDot status={status} />
-      <span className="sr-only">Status: </span>
-      <span className="kicker text-ink">{label}</span>
-    </span>
-  );
-}
-
-/** Roles that are still running. The dashboard marks them "Current" instead of showing their status. */
+/** Roles that are still running. They're marked "Current" (lamp + word, never color alone); no other status is shown. */
 export function isCurrent(status: Status) {
   return status === "in-progress" || status === "operational";
 }
 
-export function CurrentTag() {
+export function CurrentTag({ className = "ml-2" }: { className?: string }) {
   return (
-    <span className="kicker ml-2 inline-flex items-center gap-1.5 align-[1px] text-info">
+    <span className={`kicker inline-flex items-center gap-1.5 align-[1px] text-info ${className}`}>
       <StatusDot status="in-progress" />
       Current
     </span>

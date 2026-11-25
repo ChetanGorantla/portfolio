@@ -169,7 +169,6 @@ export const FLYWHEEL: TrainGear = {
   duration: REV / 6,
 };
 export const CRANK = { r: 18, rod: 70, cylinderX: 960, cylinderW: 62, cylinderH: 30 };
-export const MAKER_PLATE = { x: 812, y: 222, w: 100, h: 39, lines: ["C. GORANTLA", "SERIAL NO. 0001", "BUILT FOR UPTIME"] };
 export const STATUS_LAMP = { x: 925, y: 238 };
 export const GOVERNOR = { x: 990, y: 92 };
 /** The catwalk the automaton patrols (deck top). */

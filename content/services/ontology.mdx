@@ -25,8 +25,8 @@ links:
   repo: https://github.com/ChetanGorantla/Ontology
 media:
   type: images
-  src: [/media/ontology.png]
-  alt: ["Graph view of a Computer Architecture workspace: a 3D knowledge graph of concepts and sources, with the source list on the left and the Ask panel on the right"]
+  src: [/media/ontology-graph.png]
+  alt: ["Graph view of a Computer Architecture workspace: a 3D knowledge graph of concepts and sources, with the Ask panel and suggested next concepts on the right"]
 ---
 
 ## In short
@@ -37,11 +37,11 @@ Ontology won **Best Use of Google Gemini** at a UT Austin hackathon, out of 200+
 
 A team's knowledge ends up split across PDFs, a repo, and Slack, and the usual chat box on top answers confidently without showing its work. We wanted every claim to trace back to a source.
 
-## What we built
+## What I built
 
-- **Ingestion:** an async job queue turns PDFs, GitHub, and Slack into a typed, 250-node knowledge graph
-- **Retrieval:** top-7 pgvector matches with context caching, so the same context isn't sent twice
-- **Isolation:** tenants kept apart with Postgres row-level security
+- **Entity deduplication:** one person or project, named differently across PDFs, repos, and Slack, becomes a single node
+- **Chunk-embedding citation system:** answers cite the source chunks they came from, and citations to chunks outside the workspace are dropped
+- **Path traversal:** walking the knowledge graph from a node to the ones related to it
 
 ## The hard part
 

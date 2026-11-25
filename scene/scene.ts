@@ -7,8 +7,6 @@ import {
   BRONZE_HI,
   BRONZE_LO,
   cagedLamp,
-  castPlate,
-  castText,
   COPPER,
   finish,
   flange,
@@ -20,7 +18,6 @@ import {
   Relief,
   rivet,
   STEEL,
-  text5x7Width,
   tube,
   WALL,
 } from "./kit.ts";
@@ -44,7 +41,6 @@ import {
   LAYERS,
   LEVELS,
   LEVER,
-  MAKER_PLATE,
   MID_GEARS,
   MID_LAMPS,
   midLights,
@@ -356,10 +352,7 @@ function upperWorks(b: Bitmap, r: Rng) {
   b.rect(GOVERNOR.x - 1, GOVERNOR.y + 14, 1, axle - 28 - GOVERNOR.y - 14, add(STEEL, 30));
   b.rect(GOVERNOR.x - 4, axle - 32, 9, 4, BRONZE);
 
-  // maker's plate on the base, the status lamp beside it
-  const M = MAKER_PLATE;
-  castPlate(b, r, M.x, M.y, M.w, M.h);
-  M.lines.forEach((line, i) => castText(b, line, M.x + Math.round((M.w - text5x7Width(line)) / 2), M.y + 5 + i * 10, hex("#f0cf8c")));
+  // the status lamp on the base
   b.rect(STATUS_LAMP.x - 1, STATUS_LAMP.y - 10, 2, 10, IRON);
   b.rect(STATUS_LAMP.x - 4, STATUS_LAMP.y - 2, 8, 2, BRONZE);
   b.disc(STATUS_LAMP.x, STATUS_LAMP.y + 4, 4.5, (x, y, d) => (d > 0.8 ? shade(BRONZE, 0.8) : null));

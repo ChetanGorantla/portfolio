@@ -1,8 +1,11 @@
 import Link from "next/link";
-import type { Profile } from "@/lib/content";
+import { GROUPS, type Profile } from "@/lib/content";
 import { ContactLinkItem, contactLinks } from "./links";
 import { LinksMenu } from "./links-menu";
 import { HealthDot } from "./machinery-controls";
+import { SectionNav } from "./section-nav";
+
+const sections = GROUPS.map(({ anchor, label }) => ({ anchor, label }));
 
 export function StatusBar({ name, links }: { name: string; links: Profile["links"] }) {
   const items = contactLinks(links);
@@ -16,7 +19,14 @@ export function StatusBar({ name, links }: { name: string; links: Profile["links
           </Link>
         </div>
 
-        <nav aria-label="Contact" className="flex items-center gap-2 sm:gap-5">
+        <nav aria-label="Site" className="flex items-center gap-2 sm:gap-5">
+          <ul className="hidden items-center gap-5 border-r border-on-dark-muted/25 pr-5 sm:flex">
+            <SectionNav
+              sections={sections}
+              linkClass="text-sm text-on-dark-muted underline-offset-[6px] transition-colors hover:text-on-dark"
+              activeClass="text-on-dark underline decoration-[#e9c46a] decoration-2"
+            />
+          </ul>
           <ul className="hidden items-center gap-5 sm:flex">
             {items.map((link) => (
               <li key={link.label}>
@@ -25,6 +35,13 @@ export function StatusBar({ name, links }: { name: string; links: Profile["links
             ))}
           </ul>
           <LinksMenu>
+            <ul className="mb-1.5 border-b border-on-dark-muted/20 pb-1.5">
+              <SectionNav
+                sections={sections}
+                linkClass="block rounded-md px-3 py-2 text-sm text-on-dark hover:bg-white/8"
+                activeClass="underline decoration-[#e9c46a] decoration-2 underline-offset-4"
+              />
+            </ul>
             <ul>
               {items.map((link) => (
                 <li key={link.label}>

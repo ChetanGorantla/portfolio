@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { getNextService, getOrg, type Metric, type Service } from "@/lib/content";
+import { getNextService, getOrg, reportHref, type Metric, type Service } from "@/lib/content";
 import { ExternalLink } from "./links";
 import { Mdx } from "./mdx";
 import { ReportMedia } from "./media";
 import { Result } from "./metric";
 import { TagList, subtitle } from "./services";
-import { StatusTag } from "./status";
+import { CurrentTag, isCurrent } from "./status";
 
 export const REPORT_TITLE_ID = "incident-title";
 
@@ -27,8 +27,9 @@ function sections(body: string) {
 export function IncidentReport({ service: s, inDrawer = false }: { service: Service; inDrawer?: boolean }) {
   const next = getNextService(s.slug);
   const sub = subtitle(s);
-  // A company's own report leads with its logo in place of the name.
-  const logo = s.org && s.title === s.org ? getOrg(s.org).logo : null;
+  // A company's own report leads with its logo in place of the name. In the drawer the logo is already in the sticky bar
+  // right above, so the heading spells out the name instead.
+  const logo = !inDrawer && s.org && s.title === s.org ? getOrg(s.org).logo : null;
   const [lead, ...rest] = sections(s.body);
   const figures: Metric[] = [...(s.metric ? [s.metric] : []), ...s.numbers.map((n) => ({ label: n.label, before: null, after: n.value }))];
   const links = [
@@ -53,7 +54,7 @@ export function IncidentReport({ service: s, inDrawer = false }: { service: Serv
           </div>
           <div className="flex flex-col items-start gap-1.5 sm:items-end">
             {s.dates && <span className="text-sm text-ink-muted">{s.dates}</span>}
-            <StatusTag status={s.status} label={s.statusLabel} />
+            {isCurrent(s.status) && <CurrentTag className="" />}
           </div>
         </div>
 
@@ -117,7 +118,7 @@ export function IncidentReport({ service: s, inDrawer = false }: { service: Serv
       <footer className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 border-t border-border pt-4">
         <TagList tags={s.tags} />
         <Link
-          href={`/incidents/${next.slug}`}
+          href={reportHref(next)}
           replace={inDrawer}
           scroll={!inDrawer}
           className="group ml-auto text-sm font-semibold whitespace-nowrap text-accent"
