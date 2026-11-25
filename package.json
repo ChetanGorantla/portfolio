@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "paint": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scene/build.ts",
+    "predev": "npm run paint",
     "dev": "next dev",
+    "prebuild": "npm run paint",
     "build": "next build",
     "start": "next start"
   },

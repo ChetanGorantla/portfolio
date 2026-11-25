@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Silkscreen } from "next/font/google";
 import type { ReactNode } from "react";
+import { IncidentClickGuard } from "@/components/drawer";
+import { EngineRoom } from "@/components/engine-room/engine-room";
 import { Footer } from "@/components/footer";
 import { StatusBar } from "@/components/status-bar";
 import { getProfile } from "@/lib/content";
@@ -8,6 +10,7 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono", display: "swap" });
+const pixel = Silkscreen({ weight: "400", subsets: ["latin"], variable: "--font-silkscreen", display: "swap" });
 
 const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
@@ -30,12 +33,12 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-export const viewport: Viewport = { themeColor: "#f5f2eb" };
+export const viewport: Viewport = { themeColor: "#191814" };
 
 export default function RootLayout({ children, modal }: { children: ReactNode; modal: ReactNode }) {
   const { links } = getProfile();
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} ${mono.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} ${mono.variable} ${pixel.variable}`}>
       <body className="flex min-h-dvh flex-col bg-bg font-sans text-ink">
         <a
           href="#main"
@@ -43,12 +46,14 @@ export default function RootLayout({ children, modal }: { children: ReactNode; m
         >
           Skip to content
         </a>
+        <EngineRoom />
         <StatusBar links={links} />
-        <main id="main" className="flex-1">
+        <main id="main" className="relative z-10 flex-1">
           {children}
         </main>
         <Footer links={links} />
         {modal}
+        <IncidentClickGuard />
       </body>
     </html>
   );

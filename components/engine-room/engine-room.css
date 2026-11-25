@@ -1,0 +1,187 @@
+/* The engine room behind the page (components/engine-room). Sizes are set inline in CSS px (art px × --px). */
+
+.engine {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #191814;
+}
+
+.engine-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+  opacity: 0;
+  transition: opacity 700ms ease-out;
+}
+
+.engine[data-shown] .engine-layer {
+  opacity: 1;
+}
+
+.engine img,
+.engine-ind,
+.engine-bot,
+.engine-particles {
+  image-rendering: pixelated;
+}
+
+.engine-img {
+  position: absolute;
+  max-width: none;
+}
+
+.engine-sprite {
+  position: absolute;
+  overflow: hidden;
+}
+
+.engine-sprite > img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  max-width: none;
+}
+
+/* A lamp switched off: its patch of the room, repainted dark. Darken, so two lamps off together combine. */
+.engine-lamp-off {
+  mix-blend-mode: darken;
+}
+
+/* Gears near a lamp that's been switched off */
+.engine-sprite.is-dim {
+  filter: brightness(0.62);
+}
+
+/* Soft light over lamps, flames and the furnace (the pixel art has the hard light baked in). */
+.engine-glow {
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  background: radial-gradient(circle, rgb(var(--c) / 0.42), rgb(var(--c) / 0.14) 38%, transparent 70%);
+  transition:
+    opacity 300ms ease-out,
+    transform 300ms ease-out;
+}
+
+.engine-glow.is-woken {
+  transform: scale(1.35);
+  filter: brightness(1.6);
+}
+
+.engine[data-on] .engine-glow.is-flicker {
+  animation: engine-flicker 2.4s steps(1) infinite;
+}
+
+.engine[data-on] .engine-glow.is-furnace {
+  animation: engine-furnace 1.7s steps(1) infinite;
+}
+
+.engine-glow.is-flashing {
+  animation: engine-flash 1.6s steps(1);
+}
+
+@keyframes engine-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  31% {
+    opacity: 0.86;
+  }
+  47% {
+    opacity: 0.97;
+  }
+  63% {
+    opacity: 0.82;
+  }
+  81% {
+    opacity: 0.94;
+  }
+}
+
+@keyframes engine-furnace {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0.78;
+  }
+  45% {
+    opacity: 0.92;
+  }
+  60% {
+    opacity: 0.7;
+  }
+  80% {
+    opacity: 0.88;
+  }
+}
+
+@keyframes engine-flash {
+  0%,
+  25%,
+  50%,
+  75% {
+    opacity: 1;
+    transform: scale(2.2);
+  }
+  12%,
+  37%,
+  62%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+}
+
+/* Status lamps along the top pipe: dark until the health check sweeps through. */
+.engine-ind {
+  position: absolute;
+  background-size: 100% 100%;
+  opacity: 0;
+}
+
+.engine-ind.is-on {
+  opacity: 1;
+  filter: drop-shadow(0 0 4px rgb(80 255 170 / 0.9));
+}
+
+.engine-particles {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+}
+
+/* Mouse-only easter eggs (the background is decorative, so they're not in the tab order). */
+.engine-egg,
+.engine-bot {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  background-color: transparent;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.engine-egg.is-round {
+  border-radius: 50%;
+}
+
+/* A faint warm glow under the cursor, so the clickable machinery can be found. */
+.engine-egg:not(.is-plain):hover {
+  background: radial-gradient(closest-side, rgb(255 214 140 / 0.26), rgb(255 214 140 / 0.08) 60%, transparent);
+}
+
+.engine-bot {
+  left: 0;
+  top: 0;
+  display: none;
+  background-repeat: no-repeat;
+  transform-origin: center;
+}

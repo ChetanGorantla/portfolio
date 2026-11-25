@@ -18,12 +18,12 @@ function MiniStat({ stat }: { stat: string }) {
 export function RunbookCard({ service: s }: { service: Service }) {
   const sub = subtitle(s);
   return (
-    <article id={s.slug} className={cardClass}>
+    <article id={s.slug} data-wake="" className={cardClass}>
       <div className="grid flex-1 gap-8 p-6 lg:grid-cols-[1.35fr_1fr] lg:p-8">
         <div className="flex flex-col">
           <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
             <StatusTag status={s.status} label={s.statusLabel} />
-            {s.dates && <span className="font-mono text-xs leading-5 text-ink-muted">{s.dates}</span>}
+            {s.dates && <span className="label pt-1 leading-5">{s.dates}</span>}
           </div>
           <h3 className="mt-4 text-2xl font-semibold tracking-tight text-ink">
             <CardLink service={s} />
@@ -43,12 +43,12 @@ export function RunbookCard({ service: s }: { service: Service }) {
         </div>
 
         {s.runbooks.length > 0 && (
-          <div className="self-start rounded-lg border border-border bg-bg p-5">
+          <div className="sunken self-start p-5">
             <p className="label">Runbook index</p>
             <ol className="mt-3 divide-y divide-border">
               {s.runbooks.map((rb) => (
                 <li key={rb.id} className="flex gap-3 py-2.5 text-[15px] leading-6 first:pt-1 last:pb-0">
-                  <span className="pt-px font-mono text-xs leading-6 text-ink-muted">{rb.id}</span>
+                  <span className="label pt-1 leading-5">{rb.id}</span>
                   <span className="text-ink">{rb.title}</span>
                 </li>
               ))}

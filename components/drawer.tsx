@@ -8,6 +8,33 @@ import { useEffect, useRef, type MouseEvent, type ReactNode, type SyntheticEvent
 let returnFocusTo: HTMLElement | null = null;
 
 /**
+ * Opening the same report twice (a double-click, or a second click while the first is still loading) stacks two
+ * history entries for it, and closing the drawer then strands the page. So a report link ignores the second click of
+ * a double-click and any click within a moment of the last one. Links inside the drawer (Next incident) and
+ * modifier clicks (new tab) are left alone. Rendered once, in the root layout.
+ */
+export function IncidentClickGuard() {
+  useEffect(() => {
+    let last = -Infinity;
+    const onClick = (e: globalThis.MouseEvent) => {
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const link = (e.target as Element | null)?.closest?.('a[href^="/incidents/"]');
+      if (!link || link.closest("dialog")) return;
+      const now = performance.now();
+      if (e.detail > 1 || now - last < 800) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      last = now;
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
+  return null;
+}
+
+/**
  * Right-side drawer for an intercepted incident route, built on a native modal
  * <dialog>: it traps focus, makes the page behind it inert, and closes on Esc.
  * Every way of closing ends in router.back(), so the URL and history stay in sync.
@@ -49,7 +76,25 @@ export function Drawer({ children, labelledBy }: { children: ReactNode; labelled
   // Esc, the close button, and backdrop clicks all close the dialog first.
   // React propagates `close` up its tree, so ignore it from nested dialogs (the lightbox).
   const onClose = (e: SyntheticEvent) => {
-    if (e.target === e.currentTarget && !unmounted.current) router.back();
+    if (e.target !== e.currentTarget || unmounted.current) return;
+    // Unlock scrolling as soon as it closes, not when it unmounts: if the navigation below stalls, the page
+    // must still scroll.
+    const html = document.documentElement;
+    html.style.overflow = "";
+    html.style.paddingRight = "";
+    router.back();
+    // If the report was somehow opened twice, going back lands on the same report with no drawer open, and the
+    // router no longer matches the address bar (soft navigation can't get out). Last resort: load the dashboard.
+    window.addEventListener(
+      "popstate",
+      () =>
+        window.setTimeout(() => {
+          if (window.location.pathname.startsWith("/incidents/") && !document.querySelector("dialog[data-drawer][open]")) {
+            window.location.replace("/");
+          }
+        }, 300),
+      { once: true },
+    );
   };
 
   // Only treat it as a backdrop click if the press also started there,
@@ -73,14 +118,14 @@ export function Drawer({ children, labelledBy }: { children: ReactNode; labelled
     >
       <div className="h-full overflow-y-auto overscroll-contain">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface/95 px-4 py-2.5 backdrop-blur-sm sm:px-8">
-          <span className="label">Incident report</span>
+          <span className="label">Logbook · Incident report</span>
           <button
             type="button"
             onClick={() => dialog.current?.close()}
-            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-ink-muted hover:bg-surface-sunken hover:text-ink"
+            className="flex items-center gap-2 px-2 py-1.5 text-sm text-ink-muted hover:bg-surface-sunken hover:text-ink"
           >
             Close
-            <kbd aria-hidden="true" className="hidden rounded border border-border bg-surface-sunken px-1.5 font-mono text-[10px] text-ink-muted sm:inline">
+            <kbd aria-hidden="true" className="sunken hidden px-1.5 font-mono text-[10px] text-ink-muted sm:inline">
               Esc
             </kbd>
           </button>

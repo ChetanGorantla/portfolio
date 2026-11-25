@@ -7,3 +7,7 @@ next-env.d.ts
 .env*.local
 .vercel
 npm-debug.log*
+
+# painted by scene/build.ts (npm run paint) before dev and build
+/public/scene/
+/lib/scene-manifest.json

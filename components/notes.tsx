@@ -4,7 +4,7 @@ import { Mdx } from "./mdx";
 export function Notes({ changelog, oncall }: { changelog: string; oncall: string }) {
   return (
     <div className="grid gap-4 pt-16 md:grid-cols-2">
-      <section aria-labelledby="changelog-heading" className="rounded-xl border border-border bg-surface p-6">
+      <section aria-labelledby="changelog-heading" data-wake="" className="plate p-6">
         <h2 id="changelog-heading" className="label">
           Changelog
         </h2>
@@ -12,7 +12,7 @@ export function Notes({ changelog, oncall }: { changelog: string; oncall: string
           <Mdx source={changelog} variant="changelog" />
         </div>
       </section>
-      <section aria-labelledby="oncall-heading" className="rounded-xl border border-border bg-surface p-6">
+      <section aria-labelledby="oncall-heading" data-wake="" className="plate p-6">
         <h2 id="oncall-heading" className="label">
           On-call notes
         </h2>

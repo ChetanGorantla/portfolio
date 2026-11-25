@@ -41,7 +41,7 @@ export function CardMedia({ media }: { media: Media }) {
     content = <LazyVideo srcs={media.items.map((i) => i.src)} label={media.alt} />;
   }
   return (
-    <div className="relative aspect-video overflow-hidden rounded-t-[11px] border-b border-border bg-surface-sunken">
+    <div className="relative aspect-video overflow-hidden border-b-2 border-[#3a2a16]/50 bg-surface-sunken">
       {content}
     </div>
   );

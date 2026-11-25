@@ -25,19 +25,25 @@ media: null
 
 **Status: in progress.** This is a live incident update, not a postmortem. The work is still running.
 
-> Texas Convergent's Forge program has a partnership with Family Dollar that spans the whole company. I'm the Tech Lead for it: I lead the engineering initiative for 2 projects under the partnership, and I work directly with the CIO.
+Texas Convergent's Forge program has a partnership with Family Dollar that spans the whole company. I'm the Tech Lead for it: I lead the engineering initiative for 2 projects under the partnership, and I work directly with the CIO.
 
 ## Context
 
-> Family Dollar faces an issue of out-of-stock shelves generating poor trends in store efficiency and sell rate. Also, pinpad skimmers maliciously target EBT cardholders since their services offer less customer protection than credit card companies do.
+Two problems, one per project:
+
+- **Out-of-stock shelves.** Family Dollar faces an issue of out-of-stock shelves generating poor trends in store efficiency and sell rate.
+- **Pinpad skimmers.** Pinpad skimmers maliciously target EBT cardholders since their services offer less customer protection than credit card companies do.
 
 ## Approach
 
-> For out-of-stock shelves, we identify high-risk shelves and derive fullness scores, and observe trends over time. For pinpad skimmers, we use two-pass object detection to first locate a pinpad and then identify certain characteristics. We compare computer-generated results with hand-labeled data for accuracy purposes.
+- **Out-of-stock shelves.** We identify high-risk shelves and derive fullness scores, and observe trends over time.
+- **Pinpad skimmers.** We use two-pass object detection to first locate a pinpad and then identify certain characteristics.
+
+For both, we compare computer-generated results with hand-labeled data for accuracy purposes.
 
 ## The hard part
 
-> Working in a real-world environment brings tighter constraints than working on a personal project. Navigating cost, security, and feasibility is the most difficult aspect of the project - not the code. Finding a balance between the three requires communication across company stakeholders and teams to find an aligned perspective and acknowledge certain tradeoffs.
+Working in a real-world environment brings tighter constraints than working on a personal project. **Navigating cost, security, and feasibility is the most difficult aspect of the project, not the code.** Finding a balance between the three requires communication across company stakeholders and teams to find an aligned perspective and acknowledge certain tradeoffs.
 
 ## Resolution
 
@@ -45,4 +51,4 @@ Not resolved yet, and that's expected. This report will be updated as the projec
 
 ## Lessons learned (so far)
 
-> Leading a team is harder than it sounds. I've had to defend my teams' decisions, weigh outcomes on the fly, and maintain a great personal understanding of what's going on at every step of development. On top of that, keeping morale high when we face challenges is difficult, but necessary. As a leader, I'm prepared for any challenges we may face.
+**Leading a team is harder than it sounds.** I've had to defend my teams' decisions, weigh outcomes on the fly, and maintain a great personal understanding of what's going on at every step of development. On top of that, keeping morale high when we face challenges is difficult, but necessary. As a leader, I'm prepared for any challenges we may face.

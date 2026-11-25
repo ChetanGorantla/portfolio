@@ -23,7 +23,7 @@ export function IncidentReport({ service: s, inDrawer = false }: { service: Serv
       <header>
         <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
           <StatusTag status={s.status} label={s.statusLabel} />
-          {s.dates && <span className="font-mono text-xs leading-5 text-ink-muted">{s.dates}</span>}
+          {s.dates && <span className="label pt-1 leading-5">{s.dates}</span>}
         </div>
         <h1 id={REPORT_TITLE_ID} className="mt-5 text-3xl font-semibold tracking-tight text-ink">
           {s.title}
@@ -66,7 +66,7 @@ export function IncidentReport({ service: s, inDrawer = false }: { service: Serv
           href={`/incidents/${next.slug}`}
           replace={inDrawer}
           scroll={!inDrawer}
-          className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-surface p-4 transition hover:border-ink-muted/40"
+          className="sunken group flex items-center justify-between gap-4 p-4 transition hover:brightness-[1.03]"
         >
           <span>
             <span className="label block">Next incident →</span>

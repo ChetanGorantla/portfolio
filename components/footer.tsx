@@ -12,16 +12,16 @@ function deployStamp() {
 export function Footer({ links }: { links: Profile["links"] }) {
   const { date, sha } = deployStamp();
   return (
-    <footer className="mt-20 border-t border-border">
+    <footer className="on-dark relative z-10 mt-20 border-t-2 border-[#6b4d26] bg-[#14120e]/90">
       <div className="shell flex flex-col gap-4 py-8 sm:flex-row sm:items-center sm:justify-between">
-        <p className="font-mono text-xs text-ink-muted">
+        <p className="font-mono text-xs text-on-dark-muted">
           Last deployed <time dateTime={date === "local" ? undefined : date}>{date}</time> · commit {sha}
         </p>
         <nav aria-label="Contact (footer)">
           <ul className="flex flex-wrap gap-x-5 gap-y-2">
             {contactLinks(links).map((link) => (
               <li key={link.label}>
-                <ContactLinkItem link={link} className="text-sm text-ink-muted transition-colors hover:text-ink" />
+                <ContactLinkItem link={link} className="text-sm text-on-dark-muted transition-colors hover:text-on-dark" />
               </li>
             ))}
           </ul>

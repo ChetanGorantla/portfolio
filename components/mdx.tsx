@@ -70,8 +70,8 @@ const changelog: Components = {
     }
     if (typeof rest[0] === "string") rest[0] = rest[0].replace(/^\s*[:–—-]\s*/, "");
     return (
-      <li className="grid grid-cols-[5.5rem_1fr] gap-3 py-3 leading-6 first:pt-0 last:pb-0">
-        <span className="pt-px font-mono text-xs leading-6 text-ink-muted">{first.props.children}</span>
+      <li className="grid grid-cols-[8.5rem_1fr] gap-3 py-3 leading-6 first:pt-0 last:pb-0">
+        <span className="label pt-1 leading-5 whitespace-nowrap">{first.props.children}</span>
         <span>{rest}</span>
       </li>
     );

@@ -3,13 +3,12 @@ import type { OverviewTile } from "@/lib/content";
 import { CountUp } from "./count-up";
 import { StatusDot } from "./status";
 
-const tileClass =
-  "flex h-full flex-col justify-between gap-3 rounded-xl border border-border bg-surface p-4 transition hover:border-ink-muted/40 hover:shadow-[0_2px_12px_-6px_rgb(29_28_26/0.15)] sm:p-5";
+const tileClass = "plate plate-link flex h-full flex-col justify-between gap-3 p-3 sm:p-4";
 
 export function OverviewStrip({ tiles }: { tiles: OverviewTile[] }) {
   return (
     <section aria-labelledby="overview-heading" className="pb-14">
-      <h2 id="overview-heading" className="label">
+      <h2 id="overview-heading" className="label label-tag">
         System overview
       </h2>
       <ul className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -31,7 +30,7 @@ export function OverviewStrip({ tiles }: { tiles: OverviewTile[] }) {
           );
           // In-page anchors are plain links; routes (the Forge report) open the drawer.
           return (
-            <li key={tile.label}>
+            <li key={tile.label} data-wake="">
               {tile.href.startsWith("#") ? (
                 <a href={tile.href} className={tileClass}>
                   {body}

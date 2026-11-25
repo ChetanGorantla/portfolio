@@ -24,12 +24,12 @@ export default async function IncidentPage({ params }: Props) {
   if (!service) notFound();
   return (
     <div className="shell py-10 sm:py-14">
-      <div className="mx-auto max-w-[70ch]">
-        <Link href="/" className="text-sm text-ink-muted transition-colors hover:text-ink">
+      <div className="on-dark mx-auto max-w-[70ch]">
+        <Link href="/" className="label-tag text-sm text-on-dark-muted transition-colors hover:text-on-dark">
           ← Back to dashboard
         </Link>
       </div>
-      <div className="mt-8 rounded-xl border border-border bg-surface px-4 py-8 sm:px-10 sm:py-10">
+      <div className="plate mt-8 px-4 py-8 sm:px-10 sm:py-10">
         <IncidentReport service={service} />
       </div>
     </div>

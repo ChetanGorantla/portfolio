@@ -2,29 +2,42 @@
 
 /*
  * Design tokens. The whole palette lives here; components only read these.
+ * The page is a dark engine room (components/engine-room); content sits on bronze instrument plates with ivory
+ * faces, so "surface" is the ivory and "ink" is the dark text on it. Text set directly on the dark scene uses the
+ * on-dark tokens.
  */
 :root {
-  /* "Warm paper" (default) */
-  --bg: #f5f2eb;
-  --surface: #fbf9f4;
-  --surface-sunken: #eeeae0;
-  --border: #e2ddd1;
-  --ink: #1d1c1a;
-  --ink-muted: #6b665d;
+  --bg: #191814;
+  --surface: #ece2c8;
+  --surface-sunken: #ded2b4;
+  --border: #c8b892;
+  --ink: #1f1a13;
+  --ink-muted: #5c5242;
 
-  /* "Fog" (alternative): comment out the six lines above and uncomment these.
-  --bg: #eff2f4;
-  --surface: #f8fafb;
-  --surface-sunken: #e6eaee;
-  --border: #dce2e7;
-  --ink: #111827;
-  --ink-muted: #5f6b7a;
-  */
+  --on-dark: #ece1c6;
+  --on-dark-muted: #b6a888;
 
-  /* Status colors, shared by both palettes */
-  --accent: #2d5bd0;
-  --ok: #2f7d5b;
-  --warn: #b7791f;
+  /* Links and focus: deep verdigris. Status lamps keep their meanings (jade ok, blue in progress, amber winner). */
+  --accent: #1d6b66;
+  --ok: #17694a;
+  --info: #2d5bd0;
+  --warn: #9a5f0c;
+  --focus: var(--accent);
+
+  /* One art pixel in CSS px: 2, or the nearest whole number of device pixels (matches the engine room). */
+  --art: 2px;
+}
+
+@media (resolution: 1.25dppx) {
+  :root {
+    --art: 2.4px;
+  }
+}
+
+@media (resolution: 1.75dppx) {
+  :root {
+    --art: calc(16px / 7);
+  }
 }
 
 @theme {
@@ -38,12 +51,16 @@
   --color-border: var(--border);
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
+  --color-on-dark: var(--on-dark);
+  --color-on-dark-muted: var(--on-dark-muted);
   --color-accent: var(--accent);
   --color-ok: var(--ok);
+  --color-info: var(--info);
   --color-warn: var(--warn);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-pixel: var(--font-silkscreen), var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
 @layer base {
@@ -60,8 +77,29 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--focus);
     outline-offset: 2px;
+  }
+
+  /*
+   * The page's layout boxes span the whole width over the engine room, so they let the pointer through to its
+   * clickable machinery; the content itself (plates, labels, links, buttons) takes the pointer as usual.
+   */
+  main {
+    pointer-events: none;
+  }
+
+  main .plate,
+  main .label-tag,
+  main a,
+  main button {
+    pointer-events: auto;
+  }
+
+  /* Text set straight on the engine room: light text, a brass focus ring. */
+  .on-dark {
+    --focus: #e9c46a;
+    color: var(--on-dark);
   }
 
   ::selection {
@@ -89,18 +127,92 @@
     }
   }
 
-  /* Small uppercase monospace label */
+  /*
+   * Small uppercase label, stamped in a pixel font. Silkscreen is drawn on an 8-unit grid, so at 8 art px each of
+   * its pixels is exactly one art pixel of the engine room: crisp, and the same grain as the scene.
+   */
   .label {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    line-height: 1rem;
-    letter-spacing: 0.08em;
+    font-family: var(--font-pixel);
+    font-size: calc(var(--art) * 8);
+    line-height: 1.25;
+    letter-spacing: 0;
     text-transform: uppercase;
     color: var(--ink-muted);
   }
+
+  /* A section label on the dark engine room: a small dark tag behind it so it reads over the machinery. */
+  .label-tag {
+    display: inline-block;
+    padding: 3px 8px 2px;
+    background: rgb(14 12 10 / 0.82);
+    box-shadow: inset 0 0 0 1px rgb(150 116 66 / 0.55);
+    color: var(--on-dark-muted);
+  }
+
+  /*
+   * A bronze instrument plate: a pixel-art rim (scene/ui.ts paints it as a 9-slice) around an ivory enamel face,
+   * with a hard pixel shadow. The rim's corners are chamfered, so the shadow is a drop-shadow that follows them.
+   */
+  .plate {
+    position: relative;
+    border: calc(var(--art) * 7) solid transparent;
+    border-image: url(/scene/plate.png) 7 / calc(var(--art) * 7) repeat;
+    background: url(/scene/ivory.png) 0 0 / calc(var(--art) * 32) calc(var(--art) * 32) padding-box, var(--surface) padding-box;
+    image-rendering: pixelated;
+    filter: drop-shadow(calc(var(--art) * 3) calc(var(--art) * 3) 0 rgb(8 6 4 / 0.55));
+  }
+
+  /* Interactive plates polish up under the cursor. */
+  .plate-link {
+    transition: transform 160ms ease-out;
+  }
+
+  .plate-link:hover,
+  .plate-link:focus-within {
+    border-image-source: url(/scene/plate-lit.png);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .plate-link:hover {
+      transform: translateY(calc(var(--art) * -1));
+    }
+  }
+
+  /* Recessed panel inside a plate (runbook index, report header strips). */
+  .sunken {
+    background: var(--surface-sunken);
+    box-shadow:
+      inset calc(var(--art) * 1) calc(var(--art) * 1) 0 rgb(60 44 24 / 0.28),
+      inset calc(var(--art) * -1) calc(var(--art) * -1) 0 rgb(255 250 235 / 0.55);
+  }
+
+  /* Status lamps: a glass lens in a bronze bezel, glowing. */
+  .lamp {
+    display: inline-block;
+    flex: none;
+    width: calc(var(--art) * 7);
+    height: calc(var(--art) * 7);
+    background-size: 100% 100%;
+    image-rendering: pixelated;
+  }
+
+  .lamp-ok {
+    background-image: url(/scene/lamp-ok.png);
+    filter: drop-shadow(0 0 3px rgb(63 224 160 / 0.75));
+  }
+
+  .lamp-info {
+    background-image: url(/scene/lamp-info.png);
+    filter: drop-shadow(0 0 3px rgb(90 156 255 / 0.75));
+  }
+
+  .lamp-warn {
+    background-image: url(/scene/lamp-warn.png);
+    filter: drop-shadow(0 0 3px rgb(255 180 60 / 0.75));
+  }
 }
 
-/* Main status dot: a slow pulse ring (transform + opacity only) */
+/* Main status dot (the health-check button in the header): a slow pulse ring (transform + opacity only) */
 .pulse-dot {
   position: relative;
   display: inline-block;
@@ -108,7 +220,8 @@
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 9999px;
-  background: var(--ok);
+  background: #3fe0a0;
+  box-shadow: 0 0 6px rgb(63 224 160 / 0.7);
 }
 
 .pulse-dot::after {
@@ -123,6 +236,27 @@
 @media (prefers-reduced-motion: no-preference) {
   .pulse-dot::after {
     animation: pulse-ring 2.6s ease-out infinite;
+  }
+}
+
+/* Pressed: the dot blinks while the engine room runs its health check. */
+.pulse-dot.is-checking {
+  animation: dot-check 1.6s steps(1);
+}
+
+@keyframes dot-check {
+  0%,
+  25%,
+  50%,
+  75% {
+    background: #eafff4;
+    box-shadow: 0 0 10px rgb(63 224 160);
+  }
+  12%,
+  37%,
+  62%,
+  100% {
+    background: #3fe0a0;
   }
 }
 
@@ -170,8 +304,12 @@
   height: 100%;
   max-height: 100%;
   padding: 0;
-  border: 0;
-  background: var(--surface);
+  /* The engine-room logbook: ivory pages bound with a bronze spine down the left edge. */
+  border-style: solid;
+  border-width: 0 0 0 calc(var(--art) * 7);
+  border-image: url(/scene/plate.png) 7 repeat;
+  background: url(/scene/ivory.png) 0 0 / calc(var(--art) * 32) calc(var(--art) * 32), var(--surface);
+  image-rendering: pixelated;
   color: var(--ink);
   overflow: hidden;
 }
@@ -179,12 +317,11 @@
 @media (width >= 48rem) {
   .drawer {
     width: min(46rem, 100% - 3rem);
-    border-left: 1px solid var(--border);
   }
 }
 
 .drawer::backdrop {
-  background: color-mix(in srgb, var(--ink, #1d1c1a) 30%, transparent);
+  background: rgb(6 10 10 / 0.55);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -224,5 +361,5 @@
 }
 
 .lightbox::backdrop {
-  background: color-mix(in srgb, var(--ink, #1d1c1a) 85%, transparent);
+  background: rgb(10 9 7 / 0.88);
 }

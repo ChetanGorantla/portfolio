@@ -12,8 +12,8 @@ metric:
   label: Cassandra read throughput, 10M records
   before: 1×
   after: 2×
-outcome: null
-summary: Doubled Cassandra read throughput on 10M records and migrated 100+ GB of legacy data to S3 as Parquet.
+outcome: Doubled Cassandra read throughput on 10M records and migrated 100+ GB of legacy data to S3 as Parquet.
+summary: Built a scalable data migration pipeline with hardened failure paths.
 tags: [Java, Cassandra, S3, Parquet]
 links:
   demo: null
@@ -27,7 +27,9 @@ Two jobs on the same data. I doubled Cassandra read throughput on a 10M-record d
 
 ## Context
 
-> Customer trade data was queried slowly in a dashboard, not making use of Cassandra's tradeoffs. The company also wanted to perform an internal service migration to AWS to invest in cloud infra.
+**Reads.** Customer trade data was queried slowly in a dashboard, not making use of Cassandra's tradeoffs.
+
+**Migration.** The company also wanted to perform an internal service migration to AWS to invest in cloud infra.
 
 ## Approach
 
@@ -55,8 +57,10 @@ Making the migration safe to fail. At 100+ GB, something will break partway thro
 
 ## Lessons learned
 
-> Read-side optimization is the key differentiator between using Cassandra vs other NoSQL databases. It's important to configure the database as optimally as possible to support fast reads, since that's one of the core motivations behind Cassandra. Also, batching needs precise failure handling and rollbacks to ensure data recovery.
+**Read-side optimization is the key differentiator between using Cassandra vs other NoSQL databases.** It's important to configure the database as optimally as possible to support fast reads, since that's one of the core motivations behind Cassandra.
+
+**Batching needs precise failure handling and rollbacks** to ensure data recovery.
 
 ## If I did it again
 
-> I would maintain a watchdog that can observe the status of a batch job rather than waiting for status reports. This would introduce more overhead of a persistent connection, but would allow engineers the organization of tracking currently-running processes.
+I would maintain a watchdog that can observe the status of a batch job rather than waiting for status reports. This would introduce more overhead of a persistent connection, but would allow engineers the organization of tracking currently-running processes.
